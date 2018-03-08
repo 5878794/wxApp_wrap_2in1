@@ -1,0 +1,39 @@
+@import "../less_include/all.less";
+
+
+view{
+  font-size:gv(0.4);
+}
+
+
+.top{
+  width: 100%; height: gv(0.6); line-height: gv(0.6); background: #ccc;
+  position: fixed; left:0; top:0;
+}
+.top_left{
+  width: gv(0.6); height: gv(0.6); text-align: center;
+}
+.top_right{
+  width: gv(0.6); height: gv(0.6); text-align: center;
+}
+.top_center{
+  text-align: center;
+}
+
+.main{
+  .border_box;
+  background: #eee;
+  padding: gv(0.6) gv(0.4);
+}
+.item{
+  width: 100%; height: gv(0.6);
+  line-height: gv(0.6);
+  border-bottom:1px solid #000;
+}
+
+
+.bottom{
+  position: fixed; left:0; bottom:0;
+  width: 100%; height: gv(0.6);
+  background: red;
+}

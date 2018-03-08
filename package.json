@@ -1,0 +1,34 @@
+{
+  "name": "rabbit",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "js min": "webpack --display-error-details ",
+    "js dev": "webpack --display-error-details -d",
+    "jade": "pug -o ./trunk/  -P -w ./src/pug/.",
+    "jadeTemplate": "pug -c -D --name-after-file -o ./trunk/template  ./src/pug_template",
+    "browser-sync": "browser-sync start --server --files 'css/*.css,*.html'"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-core": "^6.23.0",
+    "babel-loader": "^6.2.10",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "",
+    "babel-preset-stage-3": "^6.22.0",
+    "cheerio": "^1.0.0-rc.2",
+    "fs": "0.0.1-security",
+    "jade": "^1.11.0",
+    "less": "^3.0.1",
+    "less-plugin-functions": "^1.0.0",
+    "pug": "^2.0.0-rc.1",
+    "pug-cli": "1.0.0-alpha6",
+    "regenerator": "^0.12.3",
+    "webpack": "^2.2.1"
+  },
+  "description": "",
+  "devDependencies": {}
+}

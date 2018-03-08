@@ -1,0 +1,138 @@
+view {
+  display: block;
+}
+.box_h {
+  display: flex;
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: -moz-box;
+  width: 100%;
+  flex-direction: row;
+  box-orient: horizontal;
+  -webkit-box-orient: horizontal;
+  -ms-flex-direction: row;
+  -moz-box-orient: horizontal;
+}
+.box_s {
+  display: flex;
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: -moz-box;
+  width: 100%;
+  flex-direction: column;
+  box-orient: vertical;
+  -webkit-box-orient: vertical;
+  -ms-flex-direction: column;
+  -moz-box-orient: vertical;
+}
+.center {
+  display: flex;
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: -moz-box;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  box-align: center;
+  box-pack: center;
+  -webkit-box-align: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -ms-flex-align: center;
+  -moz-box-align: center;
+  -moz-box-pack: center;
+}
+.center_s {
+  display: flex;
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: -moz-box;
+  width: 100%;
+  align-items: center;
+  box-align: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  -moz-box-align: center;
+}
+.center_h {
+  display: flex;
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: -moz-box;
+  width: 100%;
+  justify-content: center;
+  box-pack: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -moz-box-pack: center;
+}
+.border_box {
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+.boxflex1 {
+  flex: 1;
+  box-flex: 1;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  -moz-box-flex: 1;
+}
+.boxflex2 {
+  flex: 2;
+  box-flex: 2;
+  -webkit-box-flex: 2;
+  -ms-flex: 2;
+  -moz-box-flex: 2;
+}
+.diandian {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+view {
+  font-size: 0.4rem;
+}
+.top {
+  width: 100%;
+  height: 0.6rem;
+  line-height: 0.6rem;
+  background: #ccc;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+.top_left {
+  width: 0.6rem;
+  height: 0.6rem;
+  text-align: center;
+}
+.top_right {
+  width: 0.6rem;
+  height: 0.6rem;
+  text-align: center;
+}
+.top_center {
+  text-align: center;
+}
+.main {
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  background: #eee;
+  padding: 0.6rem 0.4rem;
+}
+.item {
+  width: 100%;
+  height: 0.6rem;
+  line-height: 0.6rem;
+  border-bottom: 1px solid #000;
+}
+.bottom {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0.6rem;
+  background: red;
+}
