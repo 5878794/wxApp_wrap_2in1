@@ -1,46 +1,168 @@
+@isWxApp:false;
+@psdWidth:100;
+@wxWidth:200;
+
 view{
   display: block;
 }
 
 
-.box_h{
+.mx_box_h() when(@isWxApp = true){
   display: flex;
   flex-direction:row;
 }
+.mx_box_h() when(@isWxApp = false){
+  display: flex;
+  display:-ms-flexbox;
+  display:-webkit-box;
+  display: -moz-box;
+  width: 100%;
+  flex-direction:row;
+  box-orient:horizontal;
+  -webkit-box-orient:horizontal;
+  -ms-flex-direction:row;
+  -moz-box-orient:horizontal;
+}
+.box_h{
+  .mx_box_h;
+}
 
-.box_s{
+
+.mx_box_s() when(@isWxApp = true){
   display: flex;
   width: 100%;
   flex-direction:column;
 }
+.mx_box_s() when(@isWxApp = false){
+  display: flex;
+  display:-ms-flexbox;
+  display:-webkit-box;
+  display: -moz-box;
+  width: 100%;
+  flex-direction:column;
+  box-orient:vertical;
+  -webkit-box-orient:vertical;
+  -ms-flex-direction:column;
+  -moz-box-orient:vertical;
+}
+.box_s{
+  .mx_box_s;
+}
 
-.center{
+
+.mx_center() when(@isWxApp = true){
   display: flex;
   width: 100%;
   align-items:center;
   justify-content:center;
 }
+.mx_center() when(@isWxApp = false){
+  display: flex;
+  display:-ms-flexbox;
+  display:-webkit-box;
+  display: -moz-box;
+  width: 100%;
+  align-items:center;
+  justify-content:center;
+  box-align:center;
+  box-pack:center;
+  -webkit-box-align:center;
+  -webkit-box-pack:center;
+  -ms-flex-pack:center;
+  -ms-flex-align:center;
+  -moz-box-align:center;
+  -moz-box-pack:center;
+}
+.center{
+  .mx_center;
+}
 
 
-.center_s{
+.mx_center_s() when(@isWxApp = true){
   display: flex;
   width:100%;
   align-items:center;
 }
+.mx_center_s() when(@isWxApp = false){
+  display: flex;
+  display:-ms-flexbox;
+  display:-webkit-box;
+  display: -moz-box;
+  width:100%;
+  align-items:center;
+  box-align:center;
+  -webkit-box-align:center;
+  -ms-flex-align:center;
+  -moz-box-align:center;
+}
+.center_s{
+  .mx_center_s;
+}
 
 
-.center_h{
+.mx_center_h() when(@isWxApp = true){
   display: flex;
   width:100%;
   justify-content:center;
 }
+.mx_center_h() when(@isWxApp = false){
+  display: flex;
+  display:-ms-flexbox;
+  display:-webkit-box;
+  display: -moz-box;
+  width:100%;
+  justify-content:center;
+  box-pack:center;
+  -webkit-box-pack:center;
+  -ms-flex-pack:center;
+  -moz-box-pack:center;
+}
+.center_h{
+  .mx_center_h;
+}
 
 
+.mx_border_box() when (@isWxApp = true){
+  box-sizing: border-box;
+}
+.mx_border_box() when (@isWxApp = false){
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+.border_box{
+  .mx_border_box;
+}
+
+
+.mx_boxflex(@number:1) when(@isWxApp = true){
+  flex:@number;
+}
+.mx_boxflex(@number:1) when(@isWxApp = false){
+  flex:@number;
+  box-flex:@number;
+  -webkit-box-flex:@number;
+  -ms-flex:@number;
+  -moz-box-flex:@number;
+}
 .boxflex1{
-  flex:1;
+  .mx_boxflex;
 }
 .boxflex2{
-  flex:2;
+  .mx_boxflex(2);
+}
+
+
+.mx_border_radius(@radius) when (@isWxApp = true){
+  border-radius:@radius;
+}
+.mx_border_radius(@radius) when (@isWxApp = false){
+  -webkit-border-radius:@radius;
+  -moz-border-radius:@radius;
+  border-radius:@radius;
+}
+.border_radius(@radius){
+  .mx_border_radius(@radius)
 }
 
 
@@ -53,4 +175,19 @@ view{
   text-overflow:ellipsis;
   white-space:nowrap;
   overflow:hidden;
+}
+
+.function {
+  .gv(@x) when (@isWxApp=true) and not (ispixel(@x)){
+    return: @x*100*@wxWidth/@psdWidth * 1rpx;
+  }
+  .gv(@x) when (@isWxApp=true) and (ispixel(@x)){
+    return: unit(@x,rpx);
+  }
+  .gv(@x) when (@isWxApp=false) and not (ispixel(@x)){
+    return: @x * 1rem;
+  }
+  .gv(@x) when (@isWxApp=false) and (ispixel(@x)){
+    return: @x;
+  }
 }
