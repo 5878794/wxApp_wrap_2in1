@@ -1,3 +1,9 @@
+//bug....
+//for循环不能使用静态数组 eg:wx:for='{{[1,2,3]}}'
+
+//for循环中全局变量更新后 不会更新
+//for循环中最好不要使用全局变量,要使用放在for的data中
+
 
 
 
@@ -178,7 +184,7 @@ class dataBind{
 		return newText;
 	}
 	//获取wx:for的实际数组
-	[getArrayData](text){
+	[getArrayData](text,listData){
 		let data = this.data;
 		let textArray = text.replace(/\{\{(.*?)\}\}/ig,',$1,').split(',');
 
@@ -187,7 +193,9 @@ class dataBind{
 		}
 
 		textArray = textArray[1];
-		textArray = textArray.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,'data.$1');
+		textArray = textArray.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,function(key){
+			return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
+		});
 
 		return eval('('+textArray+')');
 	}
@@ -239,7 +247,7 @@ class dataBind{
 			let forData = dom.getAttribute('wx:for'),
 				forIndex = dom.getAttribute('wx:for-index') || 'index',
 				forItem = dom.getAttribute('wx:for-item') || 'item';
-			forData = this[getArrayData](forData);
+			forData = this[getArrayData](forData,listData);
 
 			dom.removeAttribute('wx:for');
 			dom.removeAttribute('wx:for-index');
@@ -257,7 +265,7 @@ class dataBind{
 
 				if(dom.childNodes.length !=0){
 					for(let i=0,l=dom.childNodes.length;i<l;i++){
-						this[createListDom](this_dom,dom.childNodes[i],nowListData);
+						this[createListDom](this_dom,dom.childNodes[i].cloneNode(true),nowListData);
 					}
 				}
 			});
@@ -276,7 +284,7 @@ class dataBind{
 			}
 		}
 	}
-
+	//生成列表中的值
 	[setForListNode](this_dom,nowListData){
 		if(this_dom.nodeType==1){
 			//计算属性
