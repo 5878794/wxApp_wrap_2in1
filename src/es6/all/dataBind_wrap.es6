@@ -5,10 +5,16 @@ require('../lib/pro/array');
 let init = Symbol(),
 	resolveDom = Symbol(),
 	regText = Symbol(),
-	resolveDomAttr = Symbol(),
-	resolveDomText = Symbol(),
 	resolveNext = Symbol(),
-	getCompiledValue = Symbol();
+	getCompiledValue = Symbol(),
+	handlerNodeText = Symbol(),
+	handlerNodeAttr = Symbol(),
+	handlerNodeWxFor = Symbol(),
+	getCompiledList = Symbol(),
+	getArrayData = Symbol(),
+	createListDom = Symbol(),
+	getCompiledForValue = Symbol(),
+	setForListNode = Symbol();
 
 
 
@@ -39,11 +45,23 @@ class dataBind{
 	//查找非wx:属性的dom,查找所有含有 {{}}的部分
 	[resolveDom](dom){
 		let type = dom.nodeType;
+
 		if(type==1){
-			this[resolveDomAttr](dom);
+			let hasWxFor = (dom.getAttribute('wx:for'))? true : false;
+			if(hasWxFor){
+				//如果是wx:for 不向下解析
+				this[handlerNodeWxFor](dom);
+
+			}else{
+				//非wx:for的元素
+				this[handlerNodeAttr](dom);
+				//搜索子集
+				this[resolveNext](dom);
+			}
 		}
 		if(type==3){
-			this[resolveDomText](dom);
+			this[handlerNodeText](dom);
+			this[resolveNext](dom);
 		}
 	}
 	//继续查找
@@ -54,59 +72,15 @@ class dataBind{
 			this[resolveDom](dom.childNodes[i]);
 		}
 	}
-	//解析type=1的node
-	[resolveDomAttr](dom){
-		let attr = dom.attributes,
-			hasWxFor = (dom.getAttribute('wx:for'))? true : false,
-			hasVar = [],
-			exclude = [];
 
-		//如果是wx:for 去除设置的item和key的变量到缓存
-		if(hasWxFor){
-			let index = dom.getAttribute('wx:for-index') || 'index',
-				item = dom.getAttribute('wx:for-item') || 'item';
-			exclude.push(index);
-			exclude.push(item);
-		}
 
-		for(let i=0,l=attr.length;i<l;i++){
-			let attrName = attr[i].nodeName,
-				attrValue = attr[i].nodeValue;
 
-			//获取值中的{{}}的变量
-			let _thisVal = this[regText](attrValue);
-			if(_thisVal){
-				//删除要忽略的变量名
-				exclude.map(rs=>{
-					_thisVal.del(rs);
-				});
-				//记录
-				hasVar.push({
-					attrName:attrName,
-					attrValue:attrValue,
-					dom:dom,
-					data:_thisVal,
-					type:'attr',
-					isFor:hasWxFor
-				})
-			}
 
-		}
-
-		//TODO
-		// this.bindTree.pushArray(hasVar);
-		if(hasWxFor) {
-			dom.style.display = 'none';
-		}else{
-			this[resolveNext](dom);
-		}
-	}
-	//解析type=3的node
-	[resolveDomText](dom){
+	//处理node=3的值 生成处理函数
+	[handlerNodeText](dom){
 		let val = dom.nodeValue,
+			_thisVar = this[regText](val),
 			_this = this;
-
-		let _thisVar = this[regText](val);
 
 		_thisVar.map(rs=>{
 			if(!this.bindTree[rs]){
@@ -117,21 +91,120 @@ class dataBind{
 				dom.nodeValue = _this[getCompiledValue](val);
 			});
 		});
+	}
+	//处理node=1的attr (不含wx:for属性的)
+	[handlerNodeAttr](dom){
+		let attr = dom.attributes,
+			_this = this;
+
+		for(let i=0,l=attr.length;i<l;i++){
+			let attrName = attr[i].nodeName,
+				attrValue = attr[i].nodeValue;
+
+			//获取值中的{{}}的变量
+			let _thisVar = this[regText](attrValue);
+
+			//变量生成函数
+			_thisVar.map(rs=>{
+				if(!this.bindTree[rs]){
+					this.bindTree[rs] = [];
+				}
+
+				this.bindTree[rs].push(function(){
+					let val = _this[getCompiledValue](attrValue);
+					dom.setAttribute(attrName,val);
+				});
+			});
+		}
+	}
+	//处理node=1的 含wx:for的元素
+	[handlerNodeWxFor](dom){
+		let forData = dom.getAttribute('wx:for'),
+			_this = this;
+
+		let _thisVar = this[regText](forData);
+		_thisVar.map(rs=>{
+			if(!this.bindTree[rs]){
+				this.bindTree[rs] = [];
+			}
+
+			let addDoms=[];
+			this.bindTree[rs].push(function(){
+				//清除之前的片段
+				addDoms.map(rs=>{
+					rs.parentElement.removeChild(rs);
+				});
+				addDoms = [];
+
+				//获取新的片段
+				let fragment = _this[getCompiledList](dom);
+				//缓存添加的片段元素
+				for(let i=0,l=fragment.children.length;i<l;i++){
+					addDoms.push(fragment.children[i]);
+				}
+
+				//插入片段
+				dom.parentElement.insertBefore(fragment,dom);
+			});
+		});
 
 
-		this[resolveNext](dom);
+		//TODO
+		dom.style.display = 'none';
 	}
 
 
 
+	//计算最终的值
 	[getCompiledValue](text){
 		let data = this.data;
-		text = text.replace(/\{\{(.*?)\}\}/ig,'$1,').split(',');
+		let textArray = text.replace(/\{\{(.*?)\}\}/ig,',$1,').split(',');
 		let newText = '';
 
-		text.map((rs,i)=>{
-			if(i%2==0){
+		if(textArray.length==1){
+			return text;
+		}
+
+		textArray.map((rs,i)=>{
+			if(i%2==1){
 				rs = rs.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,'data.$1');
+				newText += eval('('+rs+')');
+			}else{
+				newText += rs;
+			}
+		});
+
+		return newText;
+	}
+	//获取wx:for的实际数组
+	[getArrayData](text){
+		let data = this.data;
+		let textArray = text.replace(/\{\{(.*?)\}\}/ig,',$1,').split(',');
+
+		if(textArray.length==1){
+			return text;
+		}
+
+		textArray = textArray[1];
+		textArray = textArray.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,'data.$1');
+
+		return eval('('+textArray+')');
+	}
+	//计算wx:for中的变量值
+	[getCompiledForValue](text,listData){
+		let data = this.data;
+		let textArray = text.replace(/\{\{(.*?)\}\}/ig,',$1,').split(',');
+		let newText = '';
+
+		if(textArray.length == 1){
+			return text;
+		}
+
+		textArray.map((rs,i)=>{
+			if(i%2==1){
+				rs = rs.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,function(key){
+					return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
+				});
 				newText += eval('('+rs+')');
 			}else{
 				newText += rs;
@@ -142,6 +215,82 @@ class dataBind{
 	}
 
 
+	//计算列表node
+	[getCompiledList](dom){
+		let fragment = document.createDocumentFragment();
+		let listData = {};
+		let cloneDom = dom.cloneNode(true);
+		cloneDom.style.display = 'block';
+
+		this[createListDom](fragment,cloneDom,listData);
+
+
+		return fragment;
+	}
+
+	//生成列表dom并赋值
+	[createListDom](parentDom,dom,listData){
+		let nowListData = JSON.parse(JSON.stringify(listData));
+		//判断是否含有wx:for
+		if(dom.nodeType == 1 && dom.getAttribute('wx:for')){
+			let forData = dom.getAttribute('wx:for'),
+				forIndex = dom.getAttribute('wx:for-index') || 'index',
+				forItem = dom.getAttribute('wx:for-item') || 'item';
+			forData = this[getArrayData](forData);
+
+			dom.removeAttribute('wx:for');
+			dom.removeAttribute('wx:for-index');
+			dom.removeAttribute('wx:for-item');
+
+			forData.map((rs,i)=>{
+				nowListData[forIndex] = i;
+				nowListData[forItem] = rs;
+
+				let this_dom = dom.cloneNode();
+				//设置该dom克隆后的属性
+				this[setForListNode](this_dom,nowListData);
+
+				parentDom.appendChild(this_dom);
+
+				if(dom.childNodes.length !=0){
+					for(let i=0,l=dom.childNodes.length;i<l;i++){
+						this[createListDom](this_dom,dom.childNodes[i],nowListData);
+					}
+				}
+			});
+		}else{
+			// 普通的
+			let this_dom = dom.cloneNode();
+			//设置该dom克隆后的属性
+			this[setForListNode](this_dom,nowListData);
+
+			parentDom.appendChild(this_dom);
+
+			if(dom.childNodes.length !=0){
+				for(let i=0,l=dom.childNodes.length;i<l;i++){
+					this[createListDom](this_dom,dom.childNodes[i],nowListData);
+				}
+			}
+		}
+	}
+
+	[setForListNode](this_dom,nowListData){
+		if(this_dom.nodeType==1){
+			//计算属性
+			let attr = this_dom.attributes;
+			for(let i=0,l=attr.length;i<l;i++){
+				let attrName = attr[i].nodeName,
+					attrValue = attr[i].nodeValue;
+				let val = this[getCompiledForValue](attrValue,nowListData);
+				this_dom.setAttribute(attrName,val);
+			}
+		}
+		if(this_dom.nodeType==3){
+			//计算text的值
+			let val = this_dom.nodeValue;
+			this_dom.nodeValue = this[getCompiledForValue](val,nowListData);
+		}
+	}
 
 
 }
