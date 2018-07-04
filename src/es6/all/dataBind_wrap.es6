@@ -148,8 +148,9 @@ class dataBind{
 			});
 		});
 
-
-		//TODO
+		//获取dom的display属性 写入data-display中
+		let display = getComputedStyle(dom,null).getPropertyValue('display');
+		dom.dataset.display=display;
 		dom.style.display = 'none';
 	}
 
@@ -220,7 +221,9 @@ class dataBind{
 		let fragment = document.createDocumentFragment();
 		let listData = {};
 		let cloneDom = dom.cloneNode(true);
-		cloneDom.style.display = 'block';
+		let display = cloneDom.dataset.display;
+		cloneDom.dataset.display = '';
+		cloneDom.style.display = display;
 
 		this[createListDom](fragment,cloneDom,listData);
 
