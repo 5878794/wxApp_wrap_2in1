@@ -469,21 +469,20 @@ class dataBind{
 
 	//检查是否有事件绑定
 	[checkEventBind](dom,attrName,attrValue,eventList){
-		if(attrName == 'bindtap'){
-			$$(dom).myclickok(function(e){
-				console.log(e);
-				console.log(attrValue);
-			});
-			eventList.push(function(){
-				$$(dom).unbind(true);
-			});
-			// console.log(dom)
-			// console.log(attrName);
-			// console.log(attrValue);
-			// console.log('---------------')
+		switch(attrName){
+			//普通点击事件
+			case 'bindtap':
+				$$(dom).myclickok(function(e){
+					console.log(e);
+					console.log(attrValue);
+				});
+				eventList.push(function(){
+					$$(dom).unbind(true);
+				});
+
+
+
 		}
-
-
 	}
 }
 
