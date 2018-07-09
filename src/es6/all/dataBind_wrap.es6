@@ -1,8 +1,12 @@
-//bug....
+//wx小程序的数据绑定
+// 实现 wx:for  wx:for-item wx:for-index
+//     {{至少有一个变量的运算,暂不支持全常量计算}}
+
+// 未实现
 //for循环不能使用静态数组 eg:wx:for='{{[1,2,3]}}'
 
-//for循环中全局变量更新后 不会更新
-//for循环中最好不要使用全局变量,要使用放在for的data中
+
+
 
 
 
@@ -34,17 +38,17 @@ class dataBind{
 		this.forBindTree = new Map();
 
 		this[resolveDom](this.node);
+		this.refreshAll();
 	}
 
 
 	//提取字符串中的变量
-	//TODO bug 带双引号的字符串也会提取
 	//param:
 	//  @text:string
 	//  @exclude:obj
 	//return:array
 	[getGlobalVar](text,exclude={}){
-		let vars = text.match(/(?<=\{\{[\s\+\-\*\\\\a-zA-Z0-9_\'\"]*)[a-zA-Z0-9_\"]+/ig) || [],
+		let vars = text.match(/(?<=\{\{[\s\+\-\*\/\%a-zA-Z0-9_\(\)\?\:]*)[a-zA-Z0-9_]+/ig) || [],
 			backVars = [];
 
 		vars.map(rs=>{
@@ -401,7 +405,42 @@ class dataBind{
 		}
 	}
 
+	//执行所有的数据更新
+	refreshAll(){
+		Object.values(this.bindTree).map(rs=>{
+			rs.map(r=>{
+				r();
+			})
+		});
 
+
+		[...this.forBindTree.values()].map(rs=>{
+			Object.values(rs.globalParam).map(rr=>{
+				rr.map(r=>{
+					r();
+				})
+			})
+		})
+	}
+
+	//跟新指定的变量
+	refreshParam(key){
+		//跟新非for下面的
+		if(this.bindTree.hasOwnProperty(key)){
+			this.bindTree[key].map(rs=>{
+				rs();
+			})
+		}
+
+		//跟新for里面的
+		[...this.forBindTree.values()].map(rs=>{
+			if(rs.globalParam.hasOwnProperty(key)){
+				rs.globalParam[key].map(rr=>{
+					rr();
+				})
+			}
+		})
+	}
 }
 
 
