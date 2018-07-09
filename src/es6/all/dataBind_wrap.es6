@@ -441,6 +441,14 @@ class dataBind{
 			}
 		})
 	}
+
+	//设置参数
+	setData(obj={}){
+		for(let [key,val] of Object.entries(obj)){
+			this.data[key] = val;
+			this.refreshParam(key);
+		}
+	}
 }
 
 
