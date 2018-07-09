@@ -12,6 +12,8 @@
 
 
 require('../lib/pro/array');
+let $$ = require('../lib/event/$$');
+
 let resolveDom = Symbol(),
 	getGlobalVar = Symbol(),
 	getChildWxFor = Symbol(),
@@ -24,7 +26,8 @@ let resolveDom = Symbol(),
 	getArrayData = Symbol(),
 	createListDom = Symbol(),
 	getCompiledForValue = Symbol(),
-	setForListNode = Symbol();
+	setForListNode = Symbol(),
+	checkEventBind = Symbol();
 
 
 
@@ -36,6 +39,7 @@ class dataBind{
 
 		this.bindTree = {};
 		this.forBindTree = new Map();
+		this.eventList = [];
 
 		this[resolveDom](this.node);
 		this.refreshAll();
@@ -171,6 +175,8 @@ class dataBind{
 			let attrName = attr[i].nodeName,
 				attrValue = attr[i].nodeValue;
 
+			this[checkEventBind](dom,attrName,attrValue,this.eventList);
+
 			//获取值中的{{}}的变量
 			let _thisVar = this[getGlobalVar](attrValue);
 
@@ -196,7 +202,8 @@ class dataBind{
 		if(!this.forBindTree.get(dom)){
 			this.forBindTree.set(dom,{
 				children:[],
-				globalParam:{}
+				globalParam:{},
+				eventList:[]
 			})
 		}
 
@@ -210,15 +217,21 @@ class dataBind{
 			this.bindTree[rs].push(function(){
 				//清除之前的片段
 				let catchData = _this.forBindTree.get(dom);
+				//清除事件
+				catchData.eventList.map(rs=>{
+					rs();
+				});
+				//清除dom
 				catchData.children.map(rs=>{
 					rs.parentElement.removeChild(rs);
 				});
 				catchData.children = [];
 				catchData.globalParam = {};
+				catchData.eventList = [];
 
 
 				//获取新的片段
-				let fragment = _this[getCompiledList](dom,catchData.globalParam);
+				let fragment = _this[getCompiledList](dom,catchData.globalParam,catchData.eventList);
 				//缓存 添加的片段元素
 				for(let i=0,l=fragment.children.length;i<l;i++){
 					catchData.children.push(fragment.children[i]);
@@ -303,7 +316,7 @@ class dataBind{
 
 
 	//计算列表node
-	[getCompiledList](dom,globalParam){
+	[getCompiledList](dom,globalParam,eventList){
 		let fragment = document.createDocumentFragment();
 		let listData = {};
 		let cloneDom = dom.cloneNode(true);
@@ -311,14 +324,14 @@ class dataBind{
 		cloneDom.dataset.display = '';
 		cloneDom.style.display = display;
 
-		this[createListDom](fragment,cloneDom,listData,globalParam);
+		this[createListDom](fragment,cloneDom,listData,globalParam,eventList);
 
 
 		return fragment;
 	}
 
 	//生成列表dom并赋值
-	[createListDom](parentDom,dom,listData,globalParam){
+	[createListDom](parentDom,dom,listData,globalParam,eventList){
 		let nowListData = JSON.parse(JSON.stringify(listData));
 		//判断是否含有wx:for
 		if(dom.nodeType == 1 && dom.getAttribute('wx:for')){
@@ -337,13 +350,13 @@ class dataBind{
 
 				let this_dom = dom.cloneNode();
 				//设置该dom克隆后的属性
-				this[setForListNode](this_dom,nowListData,globalParam);
+				this[setForListNode](this_dom,nowListData,globalParam,eventList);
 
 				parentDom.appendChild(this_dom);
 
 				if(dom.childNodes.length !=0){
 					for(let i=0,l=dom.childNodes.length;i<l;i++){
-						this[createListDom](this_dom,dom.childNodes[i].cloneNode(true),nowListData,globalParam);
+						this[createListDom](this_dom,dom.childNodes[i].cloneNode(true),nowListData,globalParam,eventList);
 					}
 				}
 			});
@@ -351,19 +364,19 @@ class dataBind{
 			// 普通的
 			let this_dom = dom.cloneNode();
 			//设置该dom克隆后的属性
-			this[setForListNode](this_dom,nowListData,globalParam);
+			this[setForListNode](this_dom,nowListData,globalParam,eventList);
 
 			parentDom.appendChild(this_dom);
 
 			if(dom.childNodes.length !=0){
 				for(let i=0,l=dom.childNodes.length;i<l;i++){
-					this[createListDom](this_dom,dom.childNodes[i],nowListData,globalParam);
+					this[createListDom](this_dom,dom.childNodes[i],nowListData,globalParam,eventList);
 				}
 			}
 		}
 	}
 	//生成列表中的值
-	[setForListNode](this_dom,nowListData,globalParam){
+	[setForListNode](this_dom,nowListData,globalParam,eventList){
 		let _this = this;
 
 		if(this_dom.nodeType==1){
@@ -372,6 +385,9 @@ class dataBind{
 			for(let i=0,l=attr.length;i<l;i++){
 				let attrName = attr[i].nodeName,
 					attrValue = attr[i].nodeValue;
+
+				this[checkEventBind](this_dom,attrName,attrValue,eventList);
+
 				let val = this[getCompiledForValue](attrValue,nowListData);
 				this_dom.setAttribute(attrName,val);
 
@@ -448,6 +464,26 @@ class dataBind{
 			this.data[key] = val;
 			this.refreshParam(key);
 		}
+	}
+
+
+	//检查是否有事件绑定
+	[checkEventBind](dom,attrName,attrValue,eventList){
+		if(attrName == 'bindtap'){
+			$$(dom).myclickok(function(e){
+				console.log(e);
+				console.log(attrValue);
+			});
+			eventList.push(function(){
+				$$(dom).unbind(true);
+			});
+			// console.log(dom)
+			// console.log(attrName);
+			// console.log(attrValue);
+			// console.log('---------------')
+		}
+
+
 	}
 }
 

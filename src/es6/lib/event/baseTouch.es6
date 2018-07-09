@@ -10,7 +10,7 @@ let device = require("../device"),
 	savePoint = Symbol(),
 	getPoint = Symbol(),
 	refresh = Symbol();
-
+require('../jq/extend');
 
 class BaseTouch{
 	constructor(opt = {}){
