@@ -2,6 +2,19 @@
 // 实现 wx:for  wx:for-item wx:for-index
 //     {{至少有一个变量的运算,暂不支持全常量计算}}
 
+//事件实现
+//bindtap
+//bindtouchstart
+//bindtouchmove
+//bindtouchend
+
+
+//方法实现
+// this.setData({a:1});
+// this.data.a
+
+
+
 // 未实现
 //for循环不能使用静态数组 eg:wx:for='{{[1,2,3]}}'
 
