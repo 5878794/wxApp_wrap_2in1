@@ -53,12 +53,14 @@ class $${
 				if(objMapFn){
 					objMapFn.call(obj,e);
 				}
-			}
-
-
-			if(needPop){
+			}else{
 				gonext(obj);
 			}
+
+
+			// if(needPop){
+			// 	gonext(obj);
+			// }
 
 
 		};

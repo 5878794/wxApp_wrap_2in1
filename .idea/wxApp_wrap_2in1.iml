@@ -8,5 +8,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="wxApp_wrap_2in1 node_modules" level="project" />
   </component>
 </module>

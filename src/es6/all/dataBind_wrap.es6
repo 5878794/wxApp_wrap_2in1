@@ -12,7 +12,7 @@
 
 
 require('../lib/pro/array');
-let $$ = require('../lib/event/$$');
+let device = require('../lib/device');
 
 let resolveDom = Symbol(),
 	getGlobalVar = Symbol(),
@@ -35,7 +35,7 @@ class dataBind{
 	constructor(opt){
 		this.data = opt.data || {};                 //需要绑定的数据
 		this.node = opt.dom || document.body;       //domObj  原生dom对象
-
+		this.runObj = opt.runObj || this;
 
 		this.bindTree = {};
 		this.forBindTree = new Map();
@@ -50,16 +50,23 @@ class dataBind{
 	//param:
 	//  @text:string
 	//  @exclude:obj
+	//  @exclude:obj
 	//return:array
 	[getGlobalVar](text,exclude={}){
-		let vars = text.match(/(?<=\{\{[\s\+\-\*\/\%a-zA-Z0-9_\(\)\?\:]*)[a-zA-Z0-9_]+/ig) || [],
+		let vars = text.replace(/\{\{(.*?)\}\}/ig,',$1,').match(/\.?[a-zA-Z0-9_]+/g) || [],
+			// vars = text.match(/(?<=\{\{[\s\+\-\*\/\%a-zA-Z0-9_\(\)\?\:]*)[a-zA-Z0-9_]+/ig) || [],
 			backVars = [];
+		vars.filter(function(r){
+			if(r.substr(0,1)!='.'){return r;}
+		});
+		vars.delReplace();
 
 		vars.map(rs=>{
 			if(!exclude.hasOwnProperty(rs)){
 				backVars.push(rs);
 			}
 		});
+
 
 		return backVars;
 	}
@@ -265,7 +272,15 @@ class dataBind{
 
 		textArray.map((rs,i)=>{
 			if(i%2==1){
-				rs = rs.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,'data.$1');
+				//js 不支持 <?!
+				// rs = rs.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,'data.$1');
+				rs = rs.replace(/\.?[a-zA-Z0-9_\"]+/ig,function(key){
+					if(key.substr(0,1) == '.'){
+						return key;
+					}else{
+						return 'data.'+key;
+					}
+				});
 				newText += eval('('+rs+')');
 			}else{
 				newText += rs;
@@ -284,8 +299,16 @@ class dataBind{
 		}
 
 		textArray = textArray[1];
-		textArray = textArray.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,function(key){
-			return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
+		//js  不支持 <?!
+		// textArray = textArray.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,function(key){
+		// 	return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
+		// });
+		textArray = textArray.replace(/\.?[a-zA-Z0-9_\"]+/ig,function(key){
+			if(key.substr(0,1)=='.'){
+				return key;
+			}else{
+				return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
+			}
 		});
 
 		return eval('('+textArray+')');
@@ -302,8 +325,16 @@ class dataBind{
 
 		textArray.map((rs,i)=>{
 			if(i%2==1){
-				rs = rs.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,function(key){
-					return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
+				//js 不支持 ?<!
+				// rs = rs.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,function(key){
+				// 	return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
+				// });
+				rs = rs.replace(/\.?[a-zA-Z0-9_\"]+/ig,function(key){
+					if(key.substr(0,1) == '.'){
+						return t;
+					}else{
+						return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
+					}
 				});
 				newText += eval('('+rs+')');
 			}else{
@@ -469,18 +500,66 @@ class dataBind{
 
 	//检查是否有事件绑定
 	[checkEventBind](dom,attrName,attrValue,eventList){
+		let _this = this.runObj,
+			fn = null;
+
 		switch(attrName){
-			//普通点击事件
+			//tap
 			case 'bindtap':
-				$$(dom).myclickok(function(e){
-					console.log(e);
-					console.log(attrValue);
-				});
+				dom.addEventListener('click',fn = function(e){
+					_this[attrValue].call(_this,e);
+				},false);
 				eventList.push(function(){
-					$$(dom).unbind(true);
+					dom.removeEventListener('click',fn=function(e){
+						_this[attrValue].call(_this,e);
+					},false);
 				});
+				break;
+
+			//touchstart
+			case 'bindtouchstart':
+				dom.addEventListener(device.START_EV,fn = function(e){
+					_this[attrValue].call(_this,e);
+				},false);
+				eventList.push(function(){
+					dom.removeEventListener(device.START_EV,fn=function(e){
+						_this[attrValue].call(_this,e);
+					},false);
+				});
+				break;
+
+			//touchmove
+			case 'bindtouchmove':
+				dom.addEventListener(device.MOVE_EV,fn = function(e){
+					_this[attrValue].call(_this,e);
+				},false);
+				eventList.push(function(){
+					dom.removeEventListener(device.MOVE_EV,fn=function(e){
+						_this[attrValue].call(_this,e);
+					},false);
+				});
+				break;
 
 
+			//touchend
+			case 'bindtouchend':
+				dom.addEventListener(device.END_EV,fn = function(e){
+					_this[attrValue].call(_this,e);
+				},false);
+				eventList.push(function(){
+					dom.removeEventListener(device.END_EV,fn=function(e){
+						_this[attrValue].call(_this,e);
+					},false);
+				});
+				break;
+
+
+
+
+
+
+			default:
+				break;
 
 		}
 	}

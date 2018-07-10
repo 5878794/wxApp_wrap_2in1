@@ -1,35 +1,13 @@
 
     <view class="top box_h center_s">
-      <view class="top_left">1</view>
-      <view class="top_center boxflex1">测试页面</view>
+      <view class="top_left" aa="{{aaa}}">{{aaa}}</view>
+      <view class="top_center boxflex1">{{aaa}}bbb</view>
       <view class="top_right">x</view>
     </view>
     <view class="main">
-      <view class="item diandian">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item diandian">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
-      <view class="item">撒的发生快乐大家疯狂拉升京东方</view>
+      <view wx:for="{{a}}" bindtouchend="testEnd" bindtap="testFn" test="{{aaa}}" wx:for-item="ittt" wx:for-index="ids" style="opacity:1;" id="aa" name="bb" data-id="123">{{ids}}:{{ittt}}
+        <view wx:for="{{dd}}" bindtouchstart="testTouch" id="{{item}}">{{aaa}}:{{item}}</view>
+      </view>
     </view>
-    <view class="bottom">asdkjfaskljdflkasjdflkjsadklfalskdjflkaslkdjflasjdflkas</view>
+    <view class="bottom" bindtap="testFn" bindlongpress="testLong">asdkjfaskljdflkasjdflkjsadklfalskdjflkaslkdjflasjdflkas</view>
   
