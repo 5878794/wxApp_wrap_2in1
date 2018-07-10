@@ -1,6 +1,9 @@
-//wx小程序的数据绑定
-// 实现 wx:for  wx:for-item wx:for-index
-//     {{至少有一个变量的运算,暂不支持全常量计算}}
+//wx小程序的数据绑定  {{至少有一个变量的运算,暂不支持全常量计算}}
+//实现
+//wx:for
+//wx:for-item
+//wx:for-index
+
 
 //事件实现
 //bindtap
