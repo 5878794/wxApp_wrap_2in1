@@ -51,6 +51,9 @@ let page = {
 		console.log(e)
 		console.log('input:'+e.detail.value)
 		console.log('dataset:'+e.currentTarget.dataset.t+'   '+e.currentTarget.dataset.test)
+	},
+	checkboxChange(e){
+		console.log(e.detail.value);
 	}
 };
 

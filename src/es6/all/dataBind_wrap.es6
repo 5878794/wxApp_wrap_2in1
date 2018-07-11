@@ -10,6 +10,8 @@
 //bindtouchstart
 //bindtouchmove
 //bindtouchend
+//bindinput
+//bindchange
 
 
 //方法实现
@@ -17,8 +19,10 @@
 // this.data.a
 
 
-//input控件
-//
+//控件
+//input
+//textarea
+//checkbox
 
 
 // 未实现
@@ -48,7 +52,8 @@ let resolveDom = Symbol(),
 	setForListNode = Symbol(),
 	checkEventBind = Symbol(),
 	eventListNames = Symbol(),
-	addSpecialParamForE = Symbol();
+	inputEventListener = Symbol(),
+	checkboxChangeEventListener = Symbol();
 
 
 
@@ -65,7 +70,8 @@ class dataBind{
 			bindtouchstart:device.START_EV,
 			bindtouchmove:device.MOVE_EV,
 			bindtouchend:device.END_EV,
-			bindinput:'input'
+			bindinput:'input',
+			bindchange:'change'
 		};
 
 		this.bindTree = {};
@@ -535,31 +541,30 @@ class dataBind{
 		//判断是否是设置的事件名
 		if(!this[eventListNames].hasOwnProperty(attrName)){return;}
 
-		let _this = this.runObj,
-			fn = null,
-			__this__ = this,
-			eventName = this[eventListNames][attrName];
+		let eventName = this[eventListNames][attrName],
+			tagName = dom.tagName.toLowerCase();
 
-		//对象添加事件
-		dom.addEventListener(eventName,fn = function(e){
-			//给返回的事件添加微信小程序返回的特殊字段
-			let _e = __this__[addSpecialParamForE](eventName,e);
-			//执行绑定的函数
-			if(_this.hasOwnProperty(attrValue)){
-				_this[attrValue].call(_this,_e);
-			}
-		},false);
-		//根据全局和for中的变量 分别缓存注销事件
-		//缓存对象是传入的
-		eventList.push(function(){
-			dom.removeEventListener(eventName,fn,false);
-		});
+		//处理input、textarea的事件绑定
+		if(eventName == 'input'){
+			this[inputEventListener](dom,eventName,attrValue,eventList);
+			return;
+		}
+
+		if(tagName == 'checkbox-group' && eventName=='change'){
+			this[checkboxChangeEventListener](dom,eventName,attrValue,eventList);
+		}
+
 	}
 
-	//给返回的事件改造成微信小程序返回的字段
-	[addSpecialParamForE](eventName,e){
-		let newE = {};
-		if(eventName == 'input'){
+	[inputEventListener](dom,eventName,attrValue,eventList){
+		let _this = this.runObj,
+			fn = null,
+			newE = {};
+
+
+		dom.addEventListener(eventName,fn = function(e){
+			//将事件的返回改为微信的返回
+			//只返回了常用的
 			newE.detail = {
 				value:e.currentTarget.value
 			};
@@ -567,12 +572,74 @@ class dataBind{
 				id:e.currentTarget.id,
 				dataset:e.currentTarget.dataset
 			};
-			return newE;
+			newE.type = eventName;
+
+			//执行绑定的函数
+			if(_this.hasOwnProperty(attrValue)){
+				_this[attrValue].call(_this,newE);
+			}
+		},false);
+
+		//根据全局和for中的变量 分别缓存注销事件
+		//缓存对象是传入的
+		eventList.push(function(){
+			dom.removeEventListener(eventName,fn,false);
+		});
+	}
+	[checkboxChangeEventListener](dom,eventName,attrValue,eventList){
+		let _this = this.runObj,
+			checkbox = dom.getElementsByTagName('input'),
+			checkboxs = [];
+
+		//获取所有的checkbox
+		for(let i=0,l=checkbox.length;i<l;i++){
+			let input = checkbox[i];
+			if(input.getAttribute('type') == 'checkbox'){
+				checkboxs.push(input);
+			}
 		}
 
+		let getVal = function(){
+			let val=[];
+			checkboxs.map(rs=>{
+				if(rs.checked){
+					val.push(rs.value);
+				}
+			});
+			return val;
+		};
 
-		return e;
+		//事件绑定
+		checkboxs.map(rs=>{
+			let fn = null,
+				newE = {};
+			rs.addEventListener(eventName,fn=function(e){
+				//将事件的返回改为微信的返回
+				//只返回了常用的
+				newE.detail = {
+					value:getVal()
+				};
+				newE.currentTarget = {
+					id:e.currentTarget.id,
+					dataset:e.currentTarget.dataset
+				};
+				newE.type = eventName;
+
+				//执行绑定的函数
+				if(_this.hasOwnProperty(attrValue)){
+					_this[attrValue].call(_this,newE);
+				}
+			},false);
+			//根据全局和for中的变量 分别缓存注销事件
+			//缓存对象是传入的
+			eventList.push(function(){
+				rs.removeEventListener(eventName,fn,false);
+			});
+
+
+		});
 	}
+
 
 
 }

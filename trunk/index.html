@@ -32,7 +32,14 @@
       <view class="top_right">x</view>
     </view>
     <view class="main">
+      <image src="#"></image>
+      <checkbox-group bindchange="checkboxChange">
+        <input type="checkbox" value="1" />1
+        <input type="checkbox" value="2" />2
+        <input type="checkbox" value="3" />3
+      </checkbox-group>
       <input data-test="{{aaa}}" data-t="test1" type="text" bindinput="input1" placeholder="随便搞" id="aa" value="{{input1}}">
+      <textarea bindinput="input1" value="aaaa">aaaa</textarea>
       <view wx:for="{{a}}" bindtouchend="testEnd" bindtap="testFn" test="{{aaa}}" wx:for-item="ittt" wx:for-index="ids" style="opacity:1;" id="aa" name="bb" data-id="123">{{ids}}:{{ittt}}
         <view wx:for="{{dd}}" bindtouchstart="testTouch" id="{{item}}">{{aaa}}:{{item}}</view>
       </view>
