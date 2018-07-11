@@ -5,6 +5,7 @@
       <view class="top_right">x</view>
     </view>
     <view class="main">
+      <input data-test="{{aaa}}" data-t="test1" type="text" bindinput="input1" placeholder="随便搞" id="aa" value="{{input1}}" />
       <view wx:for="{{a}}" bindtouchend="testEnd" bindtap="testFn" test="{{aaa}}" wx:for-item="ittt" wx:for-index="ids" style="opacity:1;" id="aa" name="bb" data-id="123">{{ids}}:{{ittt}}
         <view wx:for="{{dd}}" bindtouchstart="testTouch" id="{{item}}">{{aaa}}:{{item}}</view>
       </view>

@@ -37,6 +37,14 @@ let renderFn = function(opt={}){
 			let $ = cheerio.load(html,{decodeEntities: false});
 			html = $('body').html();
 
+			//闭合input标签
+			// '<img src="1.jpg">'.replace(/(<img.*?)>/gi ,"$1 />")
+			html = html.replace(/(<input.*?)>/gi ,"$1 />");
+
+			//闭合image
+			html = html.replace(/<img(.*?)>/gi ,"<image $1 />");
+
+
 			//根据微信app结构生成 wxml文件
 			let wwwFileName = path.join(wxDir,'/'+fileName+'/'+fileName+'.wxml');
 			fs.writeFileSync(wwwFileName,html,function(err){

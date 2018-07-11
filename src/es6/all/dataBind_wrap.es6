@@ -17,6 +17,9 @@
 // this.data.a
 
 
+//input控件
+//
+
 
 // 未实现
 //for循环不能使用静态数组 eg:wx:for='{{[1,2,3]}}'
@@ -43,7 +46,11 @@ let resolveDom = Symbol(),
 	createListDom = Symbol(),
 	getCompiledForValue = Symbol(),
 	setForListNode = Symbol(),
-	checkEventBind = Symbol();
+	checkEventBind = Symbol(),
+	eventListNames = Symbol(),
+	addSpecialParamForE = Symbol();
+
+
 
 
 
@@ -52,6 +59,14 @@ class dataBind{
 		this.data = opt.data || {};                 //需要绑定的数据
 		this.node = opt.dom || document.body;       //domObj  原生dom对象
 		this.runObj = opt.runObj || this;
+
+		this[eventListNames] = {
+			bindtap:'click',
+			bindtouchstart:device.START_EV,
+			bindtouchmove:device.MOVE_EV,
+			bindtouchend:device.END_EV,
+			bindinput:'input'
+		};
 
 		this.bindTree = {};
 		this.forBindTree = new Map();
@@ -69,7 +84,7 @@ class dataBind{
 	//  @exclude:obj
 	//return:array
 	[getGlobalVar](text,exclude={}){
-		let vars = text.replace(/\{\{(.*?)\}\}/ig,',$1,').match(/\.?[a-zA-Z0-9_]+/g) || [],
+		let vars = text.replace(/\{\{(.*?)\}\}/ig,',$1,').match(/\.?[a-zA-Z_][a-zA-Z0-9_]*/g) || [],
 			// vars = text.match(/(?<=\{\{[\s\+\-\*\/\%a-zA-Z0-9_\(\)\?\:]*)[a-zA-Z0-9_]+/ig) || [],
 			backVars = [];
 		vars.filter(function(r){
@@ -290,14 +305,15 @@ class dataBind{
 			if(i%2==1){
 				//js 不支持 <?!
 				// rs = rs.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,'data.$1');
-				rs = rs.replace(/\.?[a-zA-Z0-9_\"]+/ig,function(key){
+				rs = rs.replace(/\.?[a-zA-Z_][a-zA-Z0-9_\"]*/ig,function(key){
 					if(key.substr(0,1) == '.'){
 						return key;
 					}else{
 						return 'data.'+key;
 					}
 				});
-				newText += eval('('+rs+')');
+				let str = eval('('+rs+')');
+				newText += (str)? str : '';
 			}else{
 				newText += rs;
 			}
@@ -319,7 +335,7 @@ class dataBind{
 		// textArray = textArray.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,function(key){
 		// 	return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
 		// });
-		textArray = textArray.replace(/\.?[a-zA-Z0-9_\"]+/ig,function(key){
+		textArray = textArray.replace(/\.?[a-zA-Z_][a-zA-Z0-9_\"]*/ig,function(key){
 			if(key.substr(0,1)=='.'){
 				return key;
 			}else{
@@ -345,7 +361,7 @@ class dataBind{
 				// rs = rs.replace(/((?<!\.[a-zA-Z_0-9_]*)[a-zA-Z0-9_\"]+)/ig,function(key){
 				// 	return (listData.hasOwnProperty(key))? 'listData.'+key : 'data.'+key;
 				// });
-				rs = rs.replace(/\.?[a-zA-Z0-9_\"]+/ig,function(key){
+				rs = rs.replace(/\.?[a-zA-Z_][a-zA-Z0-9_\"]*/ig,function(key){
 					if(key.substr(0,1) == '.'){
 						return t;
 					}else{
@@ -516,69 +532,49 @@ class dataBind{
 
 	//检查是否有事件绑定
 	[checkEventBind](dom,attrName,attrValue,eventList){
+		//判断是否是设置的事件名
+		if(!this[eventListNames].hasOwnProperty(attrName)){return;}
+
 		let _this = this.runObj,
-			fn = null;
+			fn = null,
+			__this__ = this,
+			eventName = this[eventListNames][attrName];
 
-		switch(attrName){
-			//tap
-			case 'bindtap':
-				dom.addEventListener('click',fn = function(e){
-					_this[attrValue].call(_this,e);
-				},false);
-				eventList.push(function(){
-					dom.removeEventListener('click',fn=function(e){
-						_this[attrValue].call(_this,e);
-					},false);
-				});
-				break;
-
-			//touchstart
-			case 'bindtouchstart':
-				dom.addEventListener(device.START_EV,fn = function(e){
-					_this[attrValue].call(_this,e);
-				},false);
-				eventList.push(function(){
-					dom.removeEventListener(device.START_EV,fn=function(e){
-						_this[attrValue].call(_this,e);
-					},false);
-				});
-				break;
-
-			//touchmove
-			case 'bindtouchmove':
-				dom.addEventListener(device.MOVE_EV,fn = function(e){
-					_this[attrValue].call(_this,e);
-				},false);
-				eventList.push(function(){
-					dom.removeEventListener(device.MOVE_EV,fn=function(e){
-						_this[attrValue].call(_this,e);
-					},false);
-				});
-				break;
-
-
-			//touchend
-			case 'bindtouchend':
-				dom.addEventListener(device.END_EV,fn = function(e){
-					_this[attrValue].call(_this,e);
-				},false);
-				eventList.push(function(){
-					dom.removeEventListener(device.END_EV,fn=function(e){
-						_this[attrValue].call(_this,e);
-					},false);
-				});
-				break;
-
-
-
-
-
-
-			default:
-				break;
-
-		}
+		//对象添加事件
+		dom.addEventListener(eventName,fn = function(e){
+			//给返回的事件添加微信小程序返回的特殊字段
+			let _e = __this__[addSpecialParamForE](eventName,e);
+			//执行绑定的函数
+			if(_this.hasOwnProperty(attrValue)){
+				_this[attrValue].call(_this,_e);
+			}
+		},false);
+		//根据全局和for中的变量 分别缓存注销事件
+		//缓存对象是传入的
+		eventList.push(function(){
+			dom.removeEventListener(eventName,fn,false);
+		});
 	}
+
+	//给返回的事件改造成微信小程序返回的字段
+	[addSpecialParamForE](eventName,e){
+		let newE = {};
+		if(eventName == 'input'){
+			newE.detail = {
+				value:e.currentTarget.value
+			};
+			newE.currentTarget = {
+				id:e.currentTarget.id,
+				dataset:e.currentTarget.dataset
+			};
+			return newE;
+		}
+
+
+		return e;
+	}
+
+
 }
 
 
