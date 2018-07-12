@@ -13,7 +13,8 @@ let page = {
 		dd:[1,2],
 		input1:3,
 		picker:[{key:1,value:'啊'},{key:2,value:'的'}],
-		picker_index:0
+		picker_index:0,
+		picker_date:'2018-11-11'
 	},
 	init(){
 		let a = [];
@@ -63,6 +64,12 @@ let page = {
 	bindPickerChange(e){
 		this.setData({
 			picker_index:e.detail.value
+		});
+		console.log(e);
+	},
+	bindPickerDateChange(e){
+		this.setData({
+			picker_date:e.detail.value
 		});
 		console.log(e);
 	}

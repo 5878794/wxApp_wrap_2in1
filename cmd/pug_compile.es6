@@ -115,13 +115,14 @@ var renderWrapHtml = function(html,fileName,filePath){
 	html = html.replace(/<radio[^-](.*?)>/gi,'<input type="radio" $1 />');
 	html = html.replace(/<\/radio>/gi,'');
 
-	//处理picker 去掉的range中{{}}
-	html = html.replace(/<picker.*?>/gi,function(rs){
+	//处理picker 只处理含有rang的单选 将rang的值中的{{}}符号干掉
+	html = html.replace(/<picker.*?range.*?>/gi,function(rs){
 		let a = rs.replace(/<picker.*?(range\s*=\s*\".*?)\">/,'$1');
 		let b=  a.replace(/\{|\}/ig,'');
 		rs = rs.replace(a,b);
 		return rs;
 	});
+	// console.log(html)
 
 
 

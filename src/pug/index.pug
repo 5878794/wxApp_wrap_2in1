@@ -14,7 +14,7 @@ html
 
         view(class='main')
             picker(style='width:100%;height:100rpx;background:red;' mode = 'selector' bindchange='bindPickerChange' value='{{picker_index}}' range-key='value' range='{{picker}}') 1:{{picker[picker_index].value}}
-
+            picker(style='width:100%;height:100rpx;background:red;' mode = 'date' bindchange='bindPickerDateChange' value='{{picker_date}}' start='2010-11-11' end='2020-11-22') {{picker_date}}
 
             image(src='#')
             radio-group(bindchange='radioChange')

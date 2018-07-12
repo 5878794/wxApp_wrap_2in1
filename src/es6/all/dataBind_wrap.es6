@@ -25,6 +25,7 @@
 //checkbox
 //radio
 //picker   mode = selector
+//picker   mode = date     fields只支持month和day 如果用year请使用单选
 
 
 // 未实现
@@ -38,7 +39,8 @@
 
 require('../lib/pro/array');
 let device = require('../lib/device'),
-	input_select = require('../lib/input/select');
+	input_select = require('../lib/input/select'),
+	date_select = require('../lib/input/date');
 
 let resolveDom = Symbol(),
 	getGlobalVar = Symbol(),
@@ -59,7 +61,8 @@ let resolveDom = Symbol(),
 	checkboxChangeEventListener = Symbol(),
 	radioChangeEventListener = Symbol(),
 	pickerChangeEventListener = Symbol(),
-	showPickerOneChoose = Symbol();
+	showPickerOneChoose = Symbol(),
+	showPickerDateChoose = Symbol();
 
 
 
@@ -716,21 +719,17 @@ class dataBind{
 
 		});
 	}
-	//处理picker绑定事件
+	//处理picker绑定事件  select单选和 date选择控件
 	[pickerChangeEventListener](dom,eventName,attrValue,eventList){
 		let _this = this.runObj,
 			fn = null,
 			newE = {},
 			__this__ = this;
 
-
 		dom.addEventListener('click',fn = function(e){
 			let tag = e.currentTarget,
 				mode = tag.getAttribute('mode'),
-				range = tag.getAttribute('range'),
-				showKey = tag.getAttribute('range-key'),
-				showIndex = tag.getAttribute('value'),
-				data = _this.data[range] || [],
+
 				newData = [];
 
 			//生成新的事件返回对象
@@ -740,24 +739,46 @@ class dataBind{
 			};
 			newE.type = eventName;
 
-			//生成数据格式
-			data.map((rs,i)=>{
-				newData.push({
-					key:i,
-					val:rs[showKey]
-				})
-			});
-
 			//单选
 			if(!mode || mode=='selector'){
-				//单选
+				let range = tag.getAttribute('range'),
+					showKey = tag.getAttribute('range-key'),
+					showIndex = tag.getAttribute('value'),
+					data = _this.data[range] || [];
+
+				//生成数据格式
+				data.map((rs,i)=>{
+					newData.push({
+						key:i,
+						val:rs[showKey]
+					})
+				});
+
 				__this__[showPickerOneChoose](newData,showIndex).then(rs=>{
 					newE.detail = {value:rs};
-					tag.setAttribute('value',rs);
+					// tag.setAttribute('value',rs);
 					_this[attrValue].call(_this,newE);
 				})
 
 			}
+
+			//日期
+			if(mode=='date'){
+				let selected = tag.getAttribute('value'),
+					min = tag.getAttribute('start'),
+					max = tag.getAttribute('end'),
+					showDay = tag.getAttribute('fields');
+
+				showDay = (!showDay || showDay == 'day');
+
+				__this__[showPickerDateChoose](selected,min,max,showDay).then(rs=>{
+					newE.detail = {value:rs};
+					// tag.setAttribute('value',rs);
+					_this[attrValue].call(_this,newE);
+				})
+			}
+
+
 		},false);
 
 		//根据全局和for中的变量 分别缓存注销事件
@@ -792,6 +813,26 @@ class dataBind{
 				}
 			});
 		});
+	}
+	//显示日期控件 返回：promise对象
+	[showPickerDateChoose](selected,min,max,showDay){
+		return new Promise(success=>{
+			new date_select({
+				titleText:"",       //@param:str    标题
+				selected:selected,      //@param:str    初始显示的日期， 默认：当前日期
+				minDate:min,         //@param:str    最小显示时间 默认：1950-1-1
+				maxDate:max,       //@param:str    最大显示时间 默认：2050-12-12
+				isShowDay:showDay,          //@param:bool   是否显示日,默认：true
+				viewPort:psdWidth,                //@param:number 设置psd的大小，布局需要使用rem 默认：750
+				success:function(rs){
+					//rs返回选择的年月日   yyyy-mm-dd
+					success(rs);
+				},
+				error:function(){
+					//取消选择
+				}
+			})
+		})
 	}
 
 }
