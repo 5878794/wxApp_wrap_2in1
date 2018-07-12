@@ -26,6 +26,11 @@
 //radio
 //picker   mode = selector
 //picker   mode = date     fields只支持month和day 如果用year请使用单选
+//TODO
+//scroll-view
+//swiper
+//switch
+
 
 
 // 未实现
