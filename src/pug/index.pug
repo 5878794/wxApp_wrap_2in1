@@ -13,6 +13,9 @@ html
             view(class='top_right') x
 
         view(class='main')
+            picker(style='width:100%;height:100rpx;background:red;' mode = 'selector' bindchange='bindPickerChange' value='{{picker_index}}' range-key='value' range='{{picker}}') 1:{{picker[picker_index].value}}
+
+
             image(src='#')
             radio-group(bindchange='radioChange')
                 radio(value='2') 2

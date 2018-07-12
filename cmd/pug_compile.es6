@@ -106,7 +106,7 @@ var renderWrapHtml = function(html,fileName,filePath){
 
 	//处理textarea
 	//textarea的value便签的值放在中间
-	html = html.replace(/<textarea.*?>/,function(rs){
+	html = html.replace(/<textarea.*?>/gi,function(rs){
 		let a = rs.replace(/<textarea.*?value\s*=\s*\"(.*?)\".*?>/,'$1');
 		return rs+a;
 	});
@@ -114,6 +114,14 @@ var renderWrapHtml = function(html,fileName,filePath){
 	//处理radio
 	html = html.replace(/<radio[^-](.*?)>/gi,'<input type="radio" $1 />');
 	html = html.replace(/<\/radio>/gi,'');
+
+	//处理picker 去掉的range中{{}}
+	html = html.replace(/<picker.*?>/gi,function(rs){
+		let a = rs.replace(/<picker.*?(range\s*=\s*\".*?)\">/,'$1');
+		let b=  a.replace(/\{|\}/ig,'');
+		rs = rs.replace(a,b);
+		return rs;
+	});
 
 
 

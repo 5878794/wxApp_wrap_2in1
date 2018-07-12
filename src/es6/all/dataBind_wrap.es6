@@ -24,6 +24,7 @@
 //textarea
 //checkbox
 //radio
+//picker   mode = selector
 
 
 // 未实现
@@ -36,7 +37,8 @@
 
 
 require('../lib/pro/array');
-let device = require('../lib/device');
+let device = require('../lib/device'),
+	input_select = require('../lib/input/select');
 
 let resolveDom = Symbol(),
 	getGlobalVar = Symbol(),
@@ -55,7 +57,9 @@ let resolveDom = Symbol(),
 	eventListNames = Symbol(),
 	inputEventListener = Symbol(),
 	checkboxChangeEventListener = Symbol(),
-	radioChangeEventListener = Symbol();
+	radioChangeEventListener = Symbol(),
+	pickerChangeEventListener = Symbol(),
+	showPickerOneChoose = Symbol();
 
 
 
@@ -321,7 +325,7 @@ class dataBind{
 					}
 				});
 				let str = eval('('+rs+')');
-				newText += (str)? str : '';
+				newText += (str || str==0)? str : '';
 			}else{
 				newText += rs;
 			}
@@ -564,8 +568,14 @@ class dataBind{
 			return;
 		}
 
+		//处理picker绑定事件'
+		if(tagName == 'picker' && eventName=='change'){
+			this[pickerChangeEventListener](dom,eventName,attrValue,eventList);
+		}
+
 	}
 
+	//处理input、textarea的事件绑定
 	[inputEventListener](dom,eventName,attrValue,eventList){
 		let _this = this.runObj,
 			fn = null,
@@ -596,6 +606,7 @@ class dataBind{
 			dom.removeEventListener(eventName,fn,false);
 		});
 	}
+	//处理checkbox绑定事件
 	[checkboxChangeEventListener](dom,eventName,attrValue,eventList){
 		let _this = this.runObj,
 			checkbox = dom.getElementsByTagName('input'),
@@ -649,6 +660,7 @@ class dataBind{
 
 		});
 	}
+	//处理radio绑定事件
 	[radioChangeEventListener](dom,eventName,attrValue,eventList){
 		let _this = this.runObj,
 			checkbox = dom.getElementsByTagName('input'),
@@ -704,8 +716,83 @@ class dataBind{
 
 		});
 	}
+	//处理picker绑定事件
+	[pickerChangeEventListener](dom,eventName,attrValue,eventList){
+		let _this = this.runObj,
+			fn = null,
+			newE = {},
+			__this__ = this;
 
 
+		dom.addEventListener('click',fn = function(e){
+			let tag = e.currentTarget,
+				mode = tag.getAttribute('mode'),
+				range = tag.getAttribute('range'),
+				showKey = tag.getAttribute('range-key'),
+				showIndex = tag.getAttribute('value'),
+				data = _this.data[range] || [],
+				newData = [];
+
+			//生成新的事件返回对象
+			newE.currentTarget = {
+				id:tag.id,
+				dataset:tag.dataset
+			};
+			newE.type = eventName;
+
+			//生成数据格式
+			data.map((rs,i)=>{
+				newData.push({
+					key:i,
+					val:rs[showKey]
+				})
+			});
+
+			//单选
+			if(!mode || mode=='selector'){
+				//单选
+				__this__[showPickerOneChoose](newData,showIndex).then(rs=>{
+					newE.detail = {value:rs};
+					tag.setAttribute('value',rs);
+					_this[attrValue].call(_this,newE);
+				})
+
+			}
+		},false);
+
+		//根据全局和for中的变量 分别缓存注销事件
+		//缓存对象是传入的
+		eventList.push(function(){
+			dom.removeEventListener(eventName,fn,false);
+		});
+	}
+
+
+
+	//显示单选控件 返回:promise对象
+	[showPickerOneChoose](data,index){
+		return new Promise(success=>{
+			new input_select({
+				titleText:"",       //@param:str             标题  默认：请选择
+				data:data,
+				selected:[parseInt(index)],        //@param:array(必填)    选中的key
+				radio:true,                  //@param:boolean          单选还是多选   默认true
+				//psdWidth webpack传入全区变量
+				viewPort:psdWidth,           //@param:number 设置psd的大小，布局需要使用rem 默认：750
+				success:function(rs){
+					//返回选择的对象
+					//json数组，  传入的格式
+					let key = rs[0] || {};
+					key = key.key;
+
+					success(key);
+				},
+				error:function(){
+					//取消选择
+				}
+			});
+		});
+	}
 
 }
 

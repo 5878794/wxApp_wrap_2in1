@@ -11,7 +11,9 @@ let page = {
 		a:[],
 		c:[4,5,6],
 		dd:[1,2],
-		input1:3
+		input1:3,
+		picker:[{key:1,value:'啊'},{key:2,value:'的'}],
+		picker_index:0
 	},
 	init(){
 		let a = [];
@@ -57,6 +59,12 @@ let page = {
 	},
 	radioChange(e){
 		console.log(e.detail.value);
+	},
+	bindPickerChange(e){
+		this.setData({
+			picker_index:e.detail.value
+		});
+		console.log(e);
 	}
 };
 
