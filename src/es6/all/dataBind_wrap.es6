@@ -23,6 +23,7 @@
 //input
 //textarea
 //checkbox
+//radio
 
 
 // 未实现
@@ -53,7 +54,8 @@ let resolveDom = Symbol(),
 	checkEventBind = Symbol(),
 	eventListNames = Symbol(),
 	inputEventListener = Symbol(),
-	checkboxChangeEventListener = Symbol();
+	checkboxChangeEventListener = Symbol(),
+	radioChangeEventListener = Symbol();
 
 
 
@@ -550,8 +552,16 @@ class dataBind{
 			return;
 		}
 
+		//处理checkbox绑定事件
 		if(tagName == 'checkbox-group' && eventName=='change'){
 			this[checkboxChangeEventListener](dom,eventName,attrValue,eventList);
+			return;
+		}
+
+		//处理radio绑定事件
+		if(tagName == 'radio-group' && eventName=='change'){
+			this[radioChangeEventListener](dom,eventName,attrValue,eventList);
+			return;
 		}
 
 	}
@@ -604,6 +614,61 @@ class dataBind{
 			checkboxs.map(rs=>{
 				if(rs.checked){
 					val.push(rs.value);
+				}
+			});
+			return val;
+		};
+
+		//事件绑定
+		checkboxs.map(rs=>{
+			let fn = null,
+				newE = {};
+			rs.addEventListener(eventName,fn=function(e){
+				//将事件的返回改为微信的返回
+				//只返回了常用的
+				newE.detail = {
+					value:getVal()
+				};
+				newE.currentTarget = {
+					id:e.currentTarget.id,
+					dataset:e.currentTarget.dataset
+				};
+				newE.type = eventName;
+
+				//执行绑定的函数
+				if(_this.hasOwnProperty(attrValue)){
+					_this[attrValue].call(_this,newE);
+				}
+			},false);
+			//根据全局和for中的变量 分别缓存注销事件
+			//缓存对象是传入的
+			eventList.push(function(){
+				rs.removeEventListener(eventName,fn,false);
+			});
+
+
+		});
+	}
+	[radioChangeEventListener](dom,eventName,attrValue,eventList){
+		let _this = this.runObj,
+			checkbox = dom.getElementsByTagName('input'),
+			checkboxs = [],
+			name = new Date().getTime()+''+Math.random()*100;
+
+		//获取所有的checkbox
+		for(let i=0,l=checkbox.length;i<l;i++){
+			let input = checkbox[i];
+			if(input.getAttribute('type') == 'radio'){
+				input.setAttribute('name',name);
+				checkboxs.push(input);
+			}
+		}
+
+		let getVal = function(){
+			let val='';
+			checkboxs.map(rs=>{
+				if(rs.checked){
+					val = rs.value;
 				}
 			});
 			return val;

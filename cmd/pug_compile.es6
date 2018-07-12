@@ -4,6 +4,7 @@
 //input
 //textarea
 //checkbox
+//radio
 //img
 
 
@@ -63,9 +64,13 @@ var renderWxHtml = function(html,fileName,filePath,title){
 	html = html.replace(/(<textarea.*?)>/gi ,"$1 />");
 	html = html.replace(/<\/textarea>/gi,'');
 
-	// //处理checkbox标签
+	//处理checkbox标签
 	html = html.replace(/(<checkbox[^-].*?)>/gi,'$1 />');
 	html = html.replace(/<\/checkbox>/gi,'');
+
+	//处理radio标签
+	html = html.replace(/(<radio[^-].*?)>/gi,'$1 />');
+	html = html.replace(/<\/radio>/gi,'');
 
 	//处理image
 	html = html.replace(/<img(.*?)>/gi ,"<image $1 />");
@@ -105,6 +110,10 @@ var renderWrapHtml = function(html,fileName,filePath){
 		let a = rs.replace(/<textarea.*?value\s*=\s*\"(.*?)\".*?>/,'$1');
 		return rs+a;
 	});
+
+	//处理radio
+	html = html.replace(/<radio[^-](.*?)>/gi,'<input type="radio" $1 />');
+	html = html.replace(/<\/radio>/gi,'');
 
 
 

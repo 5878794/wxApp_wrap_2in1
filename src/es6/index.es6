@@ -54,6 +54,9 @@ let page = {
 	},
 	checkboxChange(e){
 		console.log(e.detail.value);
+	},
+	radioChange(e){
+		console.log(e.detail.value);
 	}
 };
 
