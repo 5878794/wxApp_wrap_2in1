@@ -3,11 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "js min": "webpack --display-error-details ",
-    "js dev": "webpack --display-error-details -d",
-    "jade": "pug -o ./trunk/  -P -w ./src/pug/.",
-    "jadeTemplate": "pug -c -D --name-after-file -o ./trunk/template  ./src/pug_template",
-    "browser-sync": "browser-sync start --server --files 'css/*.css,*.html'"
+    "js": " babel-node ./cmd/es6_compile.es6",
+    "jade": " babel-node ./cmd/pug_compile.es6",
+    "css": " babel-node ./cmd/less_compile.es6"
   },
   "author": "",
   "license": "ISC",

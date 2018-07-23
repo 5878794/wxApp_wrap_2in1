@@ -7,6 +7,8 @@ let app = require('./all/page');
 
 let page = {
 	data:{
+		toView:'a1',
+		scrollFor:[1,2,3,4],
 		aaa:123,
 		a:[],
 		c:[4,5,6],
@@ -71,6 +73,9 @@ let page = {
 		this.setData({
 			picker_date:e.detail.value
 		});
+		console.log(e);
+	},
+	scrollFn(e){
 		console.log(e);
 	}
 };

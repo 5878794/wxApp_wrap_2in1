@@ -26,8 +26,8 @@
 //radio
 //picker   mode = selector
 //picker   mode = date     fields只支持month和day 如果用year请使用单选
+//scroll-view    //TODO scroll-into-view 未实现
 //TODO
-//scroll-view
 //swiper
 //switch
 
@@ -61,13 +61,16 @@ let resolveDom = Symbol(),
 	getCompiledForValue = Symbol(),
 	setForListNode = Symbol(),
 	checkEventBind = Symbol(),
+	checkTagNameEffect = Symbol(),
 	eventListNames = Symbol(),
 	inputEventListener = Symbol(),
 	checkboxChangeEventListener = Symbol(),
 	radioChangeEventListener = Symbol(),
 	pickerChangeEventListener = Symbol(),
 	showPickerOneChoose = Symbol(),
-	showPickerDateChoose = Symbol();
+	showPickerDateChoose = Symbol(),
+	createDataChangeFunction = Symbol(),
+	scrollEventListener = Symbol();
 
 
 
@@ -85,7 +88,8 @@ class dataBind{
 			bindtouchmove:device.MOVE_EV,
 			bindtouchend:device.END_EV,
 			bindinput:'input',
-			bindchange:'change'
+			bindchange:'change',
+			bindscroll:'scroll'
 		};
 
 		this.bindTree = {};
@@ -219,9 +223,12 @@ class dataBind{
 				this.bindTree[rs] = [];
 			}
 
-			this.bindTree[rs].push(function(){
-				dom.nodeValue = _this[getCompiledValue](val);
+			let fn = _this[createDataChangeFunction]('text',{
+				dom:dom,
+				val:val
 			});
+
+			this.bindTree[rs].push(fn);
 		});
 	}
 	//处理node=1的attr (不含wx:for属性的)
@@ -229,11 +236,14 @@ class dataBind{
 		let attr = dom.attributes,
 			_this = this;
 
+		this[checkTagNameEffect](dom);
+
 		for(let i=0,l=attr.length;i<l;i++){
 			let attrName = attr[i].nodeName,
 				attrValue = attr[i].nodeValue;
 
 			this[checkEventBind](dom,attrName,attrValue,this.eventList);
+
 
 			//获取值中的{{}}的变量
 			let _thisVar = this[getGlobalVar](attrValue);
@@ -244,10 +254,13 @@ class dataBind{
 					this.bindTree[rs] = [];
 				}
 
-				this.bindTree[rs].push(function(){
-					let val = _this[getCompiledValue](attrValue);
-					dom.setAttribute(attrName,val);
+				let fn = _this[createDataChangeFunction]('attr',{
+					dom:dom,
+					val:attrValue,
+					attr:attrName
 				});
+
+				this.bindTree[rs].push(fn);
 			});
 		}
 	}
@@ -272,35 +285,11 @@ class dataBind{
 				this.bindTree[rs] = [];
 			}
 
-			this.bindTree[rs].push(function(){
-				//清除之前的片段
-				let catchData = _this.forBindTree.get(dom);
-				//清除事件
-				catchData.eventList.map(rs=>{
-					rs();
-				});
-				//清除dom
-				catchData.children.map(rs=>{
-					rs.parentElement.removeChild(rs);
-				});
-				catchData.children = [];
-				catchData.globalParam = {};
-				catchData.eventList = [];
-
-
-				//获取新的片段
-				let fragment = _this[getCompiledList](dom,catchData.globalParam,catchData.eventList);
-				//缓存 添加的片段元素
-				for(let i=0,l=fragment.children.length;i<l;i++){
-					catchData.children.push(fragment.children[i]);
-				}
-
-				//存储到map对象
-				_this.forBindTree.set(dom,catchData);
-
-				//插入片段
-				dom.parentElement.insertBefore(fragment,dom);
+			let fn = _this[createDataChangeFunction]('for',{
+				dom:dom
 			});
+
+			this.bindTree[rs].push(fn);
 		});
 
 		//获取dom的display属性 写入data-display中
@@ -463,6 +452,9 @@ class dataBind{
 		let _this = this;
 
 		if(this_dom.nodeType==1){
+			//处理特殊标签
+			this[checkTagNameEffect](this_dom);
+
 			//计算属性
 			let attr = this_dom.attributes;
 			for(let i=0,l=attr.length;i<l;i++){
@@ -470,6 +462,7 @@ class dataBind{
 					attrValue = attr[i].nodeValue;
 
 				this[checkEventBind](this_dom,attrName,attrValue,eventList);
+
 
 				let val = this[getCompiledForValue](attrValue,nowListData);
 				this_dom.setAttribute(attrName,val);
@@ -479,10 +472,15 @@ class dataBind{
 					if(!globalParam[rs]){
 						globalParam[rs] = [];
 					}
-					globalParam[rs].push(function(){
-						let val = _this[getCompiledForValue](attrValue,nowListData);
-						this_dom.setAttribute(attrName,val);
+
+					let fn = _this[createDataChangeFunction]('for_attr',{
+						dom:this_dom,
+						attr:attrName,
+						val:attrValue,
+						parentData:nowListData
 					});
+
+					globalParam[rs].push(fn);
 				})
 			}
 		}
@@ -496,9 +494,14 @@ class dataBind{
 				if(!globalParam[rs]){
 					globalParam[rs] = [];
 				}
-				globalParam[rs].push(function(){
-					this_dom.nodeValue = _this[getCompiledForValue](val,nowListData);
+
+				let fn = _this[createDataChangeFunction]('for_text',{
+					dom:this_dom,
+					val:val,
+					parentData:nowListData
 				});
+
+				globalParam[rs].push(fn);
 			})
 
 		}
@@ -581,7 +584,51 @@ class dataBind{
 			this[pickerChangeEventListener](dom,eventName,attrValue,eventList);
 		}
 
+		//处理滚动容器 滚动事件
+		if(tagName == 'scroll-view' && eventName=='scroll'){
+			this[scrollEventListener](dom,eventName,attrValue,eventList);
+		}
+
 	}
+	//处理特殊标签
+	[checkTagNameEffect](dom){
+		let tagName = dom.tagName.toLowerCase();
+
+		//判断是否是滑动区域
+		if(tagName == 'scroll-view'){
+			let scrollX = dom.getAttribute('scroll-x'),
+				scrollY = dom.getAttribute('scroll-y'),
+				className = dom.className,
+				classNames = className.split(' ');
+
+			scrollX = (scrollX && scrollX != 'false');
+			scrollY = (scrollY && scrollY != 'false');
+
+			if(scrollX && scrollY){
+				if(classNames.indexOf('scroll_xy') == -1){
+					dom.className = className+' scroll_xy';
+				}
+			}else if(scrollX && !scrollY){
+				if(classNames.indexOf('scroll_x') == -1){
+					dom.className = className+' scroll_x';
+				}
+			}else if(!scrollX && scrollY){
+				if(classNames.indexOf('scroll_y') == -1){
+					dom.className = className+' scroll_y';
+				}
+			}
+		}
+
+
+
+
+
+
+
+
+	}
+
+
 
 	//处理input、textarea的事件绑定
 	[inputEventListener](dom,eventName,attrValue,eventList){
@@ -792,6 +839,40 @@ class dataBind{
 			dom.removeEventListener(eventName,fn,false);
 		});
 	}
+	//处理scroll-view滚动事件
+	[scrollEventListener](dom,eventName,attrValue,eventList){
+		let _this = this.runObj,
+			fn = null,
+			newE = {};
+
+
+		dom.addEventListener(eventName,fn = function(e){
+			//将事件的返回改为微信的返回
+			//只返回了常用的
+			newE.detail = {
+				scrollHeight: e.target.scrollHeight,
+				scrollLeft: e.target.scrollLeft,
+				scrollTop: e.target.scrollTop,
+				scrollWidth: e.target.scrollWidth
+			};
+			newE.currentTarget = {
+				id:e.currentTarget.id,
+				dataset:e.currentTarget.dataset
+			};
+			newE.type = eventName;
+
+			//执行绑定的函数
+			if(_this.hasOwnProperty(attrValue)){
+				_this[attrValue].call(_this,newE);
+			}
+		},false);
+
+		//根据全局和for中的变量 分别缓存注销事件
+		//缓存对象是传入的
+		eventList.push(function(){
+			dom.removeEventListener(eventName,fn,false);
+		});
+	}
 
 
 
@@ -838,6 +919,73 @@ class dataBind{
 				}
 			})
 		})
+	}
+
+
+	//创建数据变化时的处理函数
+	[createDataChangeFunction](type,opt={}){
+		let _this = this;
+
+		if(type == 'text'){
+			return function(){
+				opt.dom.nodeValue = _this[getCompiledValue](opt.val);
+			};
+		}
+
+		if(type == 'attr'){
+			return function(){
+				let val = _this[getCompiledValue](opt.val);
+				opt.dom.setAttribute(opt.attr,val);
+			}
+		}
+
+		if(type == 'for'){
+			return function(){
+				//清除之前的片段
+				let catchData = _this.forBindTree.get(opt.dom);
+				//清除事件
+				catchData.eventList.map(rs=>{
+					rs();
+				});
+				//清除dom
+				catchData.children.map(rs=>{
+					rs.parentElement.removeChild(rs);
+				});
+				catchData.children = [];
+				catchData.globalParam = {};
+				catchData.eventList = [];
+
+
+				//获取新的片段
+				let fragment = _this[getCompiledList](opt.dom,catchData.globalParam,catchData.eventList);
+				//缓存 添加的片段元素
+				for(let i=0,l=fragment.children.length;i<l;i++){
+					catchData.children.push(fragment.children[i]);
+				}
+
+				//存储到map对象
+				_this.forBindTree.set(opt.dom,catchData);
+
+				//插入片段
+				opt.dom.parentElement.insertBefore(fragment,opt.dom);
+			};
+		}
+
+		if(type == 'for_attr'){
+			return function(){
+				let val = _this[getCompiledForValue](opt.val,opt.parentData);
+				opt.dom.setAttribute(opt.attr,val);
+			};
+		}
+
+		if(type == 'for_text'){
+			return function(){
+				opt.dom.nodeValue = _this[getCompiledForValue](opt.val,opt.parentData);
+			};
+		}
+
+
+
 	}
 
 }
