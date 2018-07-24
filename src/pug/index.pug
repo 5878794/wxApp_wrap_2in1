@@ -6,44 +6,59 @@ html
         +header('测试页面','index')
     body
 
-
-        view(class='top box_hcc center_s')
-            view(class='top_left' aa='{{aaa}}') {{aaa}}
-            view(class='top_center boxflex1') {{aaa}}bbb
-            view(class='top_right') x
+        //
+        //view(class='top box_hcc center_s')
+        //    view(class='top_left' aa='{{aaa}}') {{aaa}}
+        //    view(class='top_center boxflex1') {{aaa}}bbb
+        //    view(class='top_right') x
 
         view(class='main')
-            scroll-view(scroll-x='true' class='box_hcc' a='aa' style='height:100px;width:100%;' bindscroll='scrollFn' scroll-into-view="{{toView}}")
-                view(wx:for='{{scrollFor}}' id='a{{index}}' style='width:100px; height:100px;' class='boxflex1') a{{index}}
+            scroll-view(scroll-x='true'  a='aa' style='height:100px;width:100%;' bindscroll='scrollFn' scroll-into-view="{{toView}}")
+                view(class='box_hlc')
+                    view(wx:for='{{scrollFor}}' wx:for-index='aaa' id='a{{aaa}}' style='width:100px; height:100px;') a{{aaa}}
+
+        swiper(
+            autoplay = 'true'
+            interval='{{banner.interval}}'
+            duration='{{banner.duration}}'
+            indicator-dots='{{banner.showPoint}}'
+            indicator-color='#ccc'
+            indicator-active-color='#333'
+            bindchange = 'bannerFn'
+
+        )
+            block(style='')
+                swiper-item(wx:for='{{banner.imgUrls}}')
+                    img(src='{{item}}' class='banner_item')
 
 
 
 
 
-            picker(style='width:100%;height:100rpx;background:red;' mode = 'selector' bindchange='bindPickerChange' value='{{picker_index}}' range-key='value' range='{{picker}}') 1:{{picker[picker_index].value}}
-            picker(style='width:100%;height:100rpx;background:red;' mode = 'date' bindchange='bindPickerDateChange' value='{{picker_date}}' start='2010-11-11' end='2020-11-22') {{picker_date}}
-
-            image(src='#')
-            radio-group(bindchange='radioChange')
-                radio(value='2') 2
-                radio(value='3') 3
-                radio(value='4' checked='true') 4
-            checkbox-group(bindchange='checkboxChange')
-                checkbox(value='1') 1
-                checkbox(value='2') 2
-                checkbox(value='3') 3
-
-            input(data-test='{{aaa}}' data-t='test1' type='text' bindinput='input1' placeholder='随便搞' id='aa' value='{{input1}}')
-            textarea(bindinput='input1' value='aaaa')
-            view(wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' id='aa' name='bb' data-id='123') {{ids}}:{{ittt}}
-                view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
-            view(wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' id='aa' name='bb' data-id='123') {{ids}}:{{ittt}}
-                view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
-            view(wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' id='aa' name='bb' data-id='123') {{ids}}:{{ittt}}
-                view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
-            view(wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' id='aa' name='bb' data-id='123') {{ids}}:{{ittt}}
-                view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
-            view(id='bb' wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' name='bb' data-id='123') {{ids}}:{{ittt}}
-                view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
-
-        view(class='bottom' bindtap='testFn' bindlongpress='testLong') asdkjfaskljdflkasjdflkjsadklfalskdjflkaslkdjflasjdflkas
+        //    picker(style='width:100%;height:100rpx;background:red;' mode = 'selector' bindchange='bindPickerChange' value='{{picker_index}}' range-key='value' range='{{picker}}') 1:{{picker[picker_index].value}}
+        //    picker(style='width:100%;height:100rpx;background:red;' mode = 'date' bindchange='bindPickerDateChange' value='{{picker_date}}' start='2010-11-11' end='2020-11-22') {{picker_date}}
+        //
+        //    image(src='#')
+        //    radio-group(bindchange='radioChange')
+        //        radio(value='2') 2
+        //        radio(value='3') 3
+        //        radio(value='4' checked='true') 4
+        //    checkbox-group(bindchange='checkboxChange')
+        //        checkbox(value='1') 1
+        //        checkbox(value='2') 2
+        //        checkbox(value='3') 3
+        //
+        //    input(data-test='{{aaa}}' data-t='test1' type='text' bindinput='input1' placeholder='随便搞' id='aa' value='{{input1}}')
+        //    textarea(bindinput='input1' value='aaaa')
+        //    view(wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' id='aa' name='bb' data-id='123') {{ids}}:{{ittt}}
+        //        view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
+        //    view(wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' id='aa' name='bb' data-id='123') {{ids}}:{{ittt}}
+        //        view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
+        //    view(wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' id='aa' name='bb' data-id='123') {{ids}}:{{ittt}}
+        //        view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
+        //    view(wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' id='aa' name='bb' data-id='123') {{ids}}:{{ittt}}
+        //        view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
+        //    view(id='bb' wx:for='{{a}}' bindtouchend='testEnd' bindtap='testFn' test='{{aaa}}' wx:for-item='ittt' wx:for-index='ids' style='opacity:1;' name='bb' data-id='123') {{ids}}:{{ittt}}
+        //        view(wx:for='{{dd}}' bindtouchstart='testTouch' id='{{item}}') {{aaa}}:{{item}}
+        //
+        //view(class='bottom' bindtap='testFn' bindlongpress='testLong') asdkjfaskljdflkasjdflkjsadklfalskdjflkaslkdjflasjdflkas

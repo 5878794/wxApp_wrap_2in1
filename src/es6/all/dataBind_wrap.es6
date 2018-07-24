@@ -26,9 +26,9 @@
 //radio
 //picker   mode = selector
 //picker   mode = date     fields只支持month和day 如果用year请使用单选
-//scroll-view    //TODO scroll-into-view 未实现
-//TODO
+//scroll-view
 //swiper
+//TODO
 //switch
 
 
@@ -45,7 +45,8 @@
 require('../lib/pro/array');
 let device = require('../lib/device'),
 	input_select = require('../lib/input/select'),
-	date_select = require('../lib/input/date');
+	date_select = require('../lib/input/date'),
+	banner_object = require('../lib/ui/bannerScroll_wx');
 
 let resolveDom = Symbol(),
 	getGlobalVar = Symbol(),
@@ -108,7 +109,7 @@ class dataBind{
 	//  @exclude:obj
 	//  @exclude:obj
 	//return:array
-	[getGlobalVar](text,exclude={}){
+	[getGlobalVar](text='',exclude={}){
 		// vars = text.match(/(?<=\{\{[\s\+\-\*\/\%a-zA-Z0-9_\(\)\?\:]*)[a-zA-Z0-9_]+/ig) || [],
 
 		//初步取出字符串中{{}}部分
@@ -252,7 +253,7 @@ class dataBind{
 		let attr = dom.attributes,
 			_this = this;
 
-		this[checkTagNameEffect](dom);
+
 
 		for(let i=0,l=attr.length;i<l;i++){
 			let attrName = attr[i].nodeName,
@@ -279,6 +280,9 @@ class dataBind{
 				this.bindTree[rs].push(fn);
 			});
 		}
+
+
+		this[checkTagNameEffect](dom,this.eventList);
 	}
 	//处理node=1的 含wx:for的元素
 	[handlerNodeWxFor](dom,childWxFor){
@@ -469,8 +473,7 @@ class dataBind{
 		let _this = this;
 
 		if(this_dom.nodeType==1){
-			//处理特殊标签
-			this[checkTagNameEffect](this_dom);
+
 
 			//计算属性
 			let attr = this_dom.attributes;
@@ -502,6 +505,9 @@ class dataBind{
 					globalParam[rs].push(fn);
 				})
 			}
+
+			//处理特殊标签
+			this[checkTagNameEffect](this_dom,eventList);
 		}
 		if(this_dom.nodeType==3){
 			//计算text的值
@@ -578,7 +584,8 @@ class dataBind{
 		if(!this[eventListNames].hasOwnProperty(attrName)){return;}
 
 		let eventName = this[eventListNames][attrName],
-			tagName = dom.tagName.toLowerCase();
+			tagName = dom.tagName.toLowerCase(),
+			_this = this;
 
 		//处理input、textarea的事件绑定
 		if(eventName == 'input'){
@@ -608,10 +615,12 @@ class dataBind{
 			this[scrollEventListener](dom,eventName,attrValue,eventList);
 		}
 
+
 	}
 	//处理特殊标签
-	[checkTagNameEffect](dom){
-		let tagName = dom.tagName.toLowerCase();
+	[checkTagNameEffect](dom,eventList){
+		let tagName = dom.tagName.toLowerCase(),
+			_this = this;
 
 		//判断是否是滑动区域
 		if(tagName == 'scroll-view'){
@@ -638,6 +647,51 @@ class dataBind{
 			}
 		}
 
+		//处理横向滚动banner 滚动事件
+		else if(tagName == 'swiper') {
+			setTimeout(function(){
+				let interval = dom.getAttribute('interval') || 5000,
+					duration = dom.getAttribute('duration') || 1000,
+					showPoint = (dom.getAttribute('indicator-dots'))? true : false,
+					pointColor = dom.getAttribute('indicator-color'),
+					pointChooseColor = dom.getAttribute('indicator-active-color'),
+					eventFnName = dom.getAttribute('bindchange');
+
+
+				let newE = {};
+				newE.currentTarget = {
+					id:dom.id,
+					dataset:dom.dataset
+				};
+				newE.type = 'change';
+
+
+				let fn = new banner_object({
+					win:dom,
+					body:dom.children[0],
+					time:interval,
+					animateTime:duration,
+					showPoint:showPoint,
+					pointBg:pointColor,
+					pointSelectBg:pointChooseColor,
+					changeStartFn:function(e){
+						if(eventFnName && _this.runObj[eventFnName]){
+							newE.detail = {
+								current:e
+							};
+							_this.runObj[eventFnName].call(_this.runObj,newE);
+						}
+					}
+				});
+
+
+				eventList.push(function(){
+					fn.destroy();
+				});
+			},0)
+
+
+		}
 
 
 
@@ -646,6 +700,7 @@ class dataBind{
 
 
 	}
+
 
 
 
@@ -896,6 +951,7 @@ class dataBind{
 
 
 
+
 	//显示单选控件 返回:promise对象
 	[showPickerOneChoose](data,index){
 		return new Promise(success=>{
@@ -940,6 +996,8 @@ class dataBind{
 			})
 		})
 	}
+	//显示banner 返回：promise对象
+
 
 
 	//创建数据变化时的处理函数
@@ -1014,7 +1072,10 @@ class dataBind{
 	//检查并返回scroll-view的scroll-into-view属性处理函数
 	[specialTagAndAttrHandler](dom,attr,id){
 		if(dom.tagName.toLowerCase() == 'scroll-view' && attr == 'scroll-into-view'){
-			console.log('scroll:'+id)
+			setTimeout(function(){
+				document.getElementById(id).scrollIntoView(true);
+			},0);
+
 		}
 	}
 

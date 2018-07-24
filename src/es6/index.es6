@@ -7,8 +7,19 @@ let app = require('./all/page');
 
 let page = {
 	data:{
-		toView:'a1',
-		scrollFor:[1,2,3,4],
+		banner:{
+			autoPlay:true,
+			interval:5000,
+			duration:1000,
+			showPoint:true,
+			imgUrls:[
+				'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
+				'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
+				'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg'
+			]
+		},
+		toView:'a6',
+		scrollFor:[1,2,3,4,5,6,7,8,9,10],
 		aaa:123,
 		a:[],
 		c:[4,5,6],
@@ -77,7 +88,11 @@ let page = {
 	},
 	scrollFn(e){
 		console.log(e);
+	},
+	bannerFn(e){
+		console.log(e);
 	}
+
 };
 
 if(window){

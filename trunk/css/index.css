@@ -12,6 +12,7 @@ scroll-view {
   -ms-user-select: none;
   -moz-user-select: none;
   -webkit-text-size-adjust: none;
+  flex: 0 0 auto;
 }
 text {
   display: inline-block;
@@ -138,12 +139,12 @@ a:active {
     flex-basis:auto
 */
 .boxflex1 {
-  -webkit-flex: 1 1 0%;
-  flex: 1 1 0%;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
 }
 .boxflex2 {
-  -webkit-flex: 2 1 0%;
-  flex: 2 1 0%;
+  -webkit-flex: 2 1 auto;
+  flex: 2 1 auto;
 }
 .none {
   display: none;
@@ -441,4 +442,14 @@ view {
   width: 100%;
   height: 0.6rem;
   background: red;
+}
+.banner_item {
+  width: 100%;
+  height: 2rem;
+  display: block;
+}
+swiper {
+  width: 100%;
+  height: 2rem;
+  display: block;
 }

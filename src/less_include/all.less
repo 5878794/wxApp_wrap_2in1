@@ -32,6 +32,7 @@ scroll-view{
   -ms-user-select:none;
   -moz-user-select:none;
   -webkit-text-size-adjust: none;
+  flex:0 0 auto;
 }
 
 
@@ -182,12 +183,12 @@ a:active{
     flex-basis:auto
 */
 .boxflex1{
-  -webkit-flex:1 1 0%;
-  flex:1 1 0%;
+  -webkit-flex:1 1 auto;
+  flex:1 1 auto;
 }
 .boxflex2{
-  -webkit-flex:2 1 0%;
-  flex:2 1 0%;
+  -webkit-flex:2 1 auto;
+  flex:2 1 auto;
 }
 
 
@@ -412,6 +413,30 @@ a:active{
   align-items:flex-end;
   justify-content:flex-end;
 }
+
+
+//.box_slt > *,
+//.box_slc > *,
+//.box_slb > *,
+//.box_sct > *,
+//.box_scc > *,
+//.box_scb > *,
+//.box_srt > *,
+//.box_src > *,
+//.box_srb > *,
+//.box_hlt > *,
+//.box_hlc > *,
+//.box_hlb > *,
+//.box_hct > *,
+//.box_hcc > *,
+//.box_hcb > *,
+//.box_hrt > *,
+//.box_hrc > *,
+//.box_hrb > *{
+//  flex:0 0 auto;
+//}
+
+
 
 /*多行*/
 .box_lines{
