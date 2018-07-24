@@ -70,7 +70,8 @@ let resolveDom = Symbol(),
 	showPickerOneChoose = Symbol(),
 	showPickerDateChoose = Symbol(),
 	createDataChangeFunction = Symbol(),
-	scrollEventListener = Symbol();
+	scrollEventListener = Symbol(),
+	specialTagAndAttrHandler = Symbol();
 
 
 
@@ -108,20 +109,35 @@ class dataBind{
 	//  @exclude:obj
 	//return:array
 	[getGlobalVar](text,exclude={}){
-		let vars = text.replace(/\{\{(.*?)\}\}/ig,',$1,').match(/\.?[a-zA-Z_][a-zA-Z0-9_]*/g) || [],
-			// vars = text.match(/(?<=\{\{[\s\+\-\*\/\%a-zA-Z0-9_\(\)\?\:]*)[a-zA-Z0-9_]+/ig) || [],
+		// vars = text.match(/(?<=\{\{[\s\+\-\*\/\%a-zA-Z0-9_\(\)\?\:]*)[a-zA-Z0-9_]+/ig) || [],
+
+		//初步取出字符串中{{}}部分
+		let vars = text.match(/\{\{(.*?)\}\}/ig) || [],
+			_vars = [],
 			backVars = [];
-		vars.filter(function(r){
-			if(r.substr(0,1)!='.'){return r;}
-		});
-		vars.delReplace();
 
 		vars.map(rs=>{
+			//取出字符串中的字符串 或 .字符串
+			let _tt = rs.match(/\.?[a-zA-Z_][a-zA-Z0-9_]*/g) || [];
+			_tt.map(t=>{
+				if(t.substr(0,1)!='.'){
+					//排除不是.开头的字符串
+					_vars.push(t);
+				}
+			});
+		});
+
+
+
+		//去重
+		_vars.delReplace();
+
+		//除去exclude中的字符串
+		_vars.map(rs=>{
 			if(!exclude.hasOwnProperty(rs)){
 				backVars.push(rs);
 			}
 		});
-
 
 		return backVars;
 	}
@@ -279,6 +295,7 @@ class dataBind{
 		}
 
 		let _thisVar = this[getGlobalVar](forData);
+
 		_thisVar.pushArray(childWxFor);
 		_thisVar.map(rs=>{
 			if(!this.bindTree[rs]){
@@ -457,17 +474,19 @@ class dataBind{
 
 			//计算属性
 			let attr = this_dom.attributes;
+
 			for(let i=0,l=attr.length;i<l;i++){
 				let attrName = attr[i].nodeName,
 					attrValue = attr[i].nodeValue;
 
 				this[checkEventBind](this_dom,attrName,attrValue,eventList);
 
-
 				let val = this[getCompiledForValue](attrValue,nowListData);
+
 				this_dom.setAttribute(attrName,val);
 
 				let _var = this[getGlobalVar](attrValue,nowListData);
+
 				_var.map(rs=>{
 					if(!globalParam[rs]){
 						globalParam[rs] = [];
@@ -627,6 +646,7 @@ class dataBind{
 
 
 	}
+
 
 
 
@@ -924,25 +944,29 @@ class dataBind{
 
 	//创建数据变化时的处理函数
 	[createDataChangeFunction](type,opt={}){
-		let _this = this;
+		let _this = this,
+			dom = opt.dom;
+
 
 		if(type == 'text'){
 			return function(){
-				opt.dom.nodeValue = _this[getCompiledValue](opt.val);
+				dom.nodeValue = _this[getCompiledValue](opt.val);
 			};
 		}
 
-		if(type == 'attr'){
+		else if(type == 'attr'){
 			return function(){
 				let val = _this[getCompiledValue](opt.val);
-				opt.dom.setAttribute(opt.attr,val);
+				dom.setAttribute(opt.attr,val);
+
+				_this[specialTagAndAttrHandler](dom,opt.attr,val);
 			}
 		}
 
-		if(type == 'for'){
+		else if(type == 'for'){
 			return function(){
 				//清除之前的片段
-				let catchData = _this.forBindTree.get(opt.dom);
+				let catchData = _this.forBindTree.get(dom);
 				//清除事件
 				catchData.eventList.map(rs=>{
 					rs();
@@ -957,35 +981,41 @@ class dataBind{
 
 
 				//获取新的片段
-				let fragment = _this[getCompiledList](opt.dom,catchData.globalParam,catchData.eventList);
+				let fragment = _this[getCompiledList](dom,catchData.globalParam,catchData.eventList);
 				//缓存 添加的片段元素
 				for(let i=0,l=fragment.children.length;i<l;i++){
 					catchData.children.push(fragment.children[i]);
 				}
 
 				//存储到map对象
-				_this.forBindTree.set(opt.dom,catchData);
+				_this.forBindTree.set(dom,catchData);
 
 				//插入片段
-				opt.dom.parentElement.insertBefore(fragment,opt.dom);
+				dom.parentElement.insertBefore(fragment,dom);
 			};
 		}
 
-		if(type == 'for_attr'){
+		else if(type == 'for_attr'){
 			return function(){
 				let val = _this[getCompiledForValue](opt.val,opt.parentData);
-				opt.dom.setAttribute(opt.attr,val);
+				dom.setAttribute(opt.attr,val);
+
+				_this[specialTagAndAttrHandler](dom,opt.attr,val);
 			};
 		}
 
-		if(type == 'for_text'){
+		else if(type == 'for_text'){
 			return function(){
-				opt.dom.nodeValue = _this[getCompiledForValue](opt.val,opt.parentData);
+				dom.nodeValue = _this[getCompiledForValue](opt.val,opt.parentData);
 			};
 		}
 
-
-
+	}
+	//检查并返回scroll-view的scroll-into-view属性处理函数
+	[specialTagAndAttrHandler](dom,attr,id){
+		if(dom.tagName.toLowerCase() == 'scroll-view' && attr == 'scroll-into-view'){
+			console.log('scroll:'+id)
+		}
 	}
 
 }
