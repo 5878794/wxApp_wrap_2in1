@@ -28,8 +28,7 @@
 //picker   mode = date     fields只支持month和day 如果用year请使用单选
 //scroll-view
 //swiper
-//TODO
-//switch
+
 
 
 
