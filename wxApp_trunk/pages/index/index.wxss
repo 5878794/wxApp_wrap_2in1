@@ -492,3 +492,22 @@ page {
   width: 280rpx;
   color: #333;
 }
+.index_yzm {
+  display: block;
+  width: 170rpx;
+  height: 55rpx;
+  margin-left: 20rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #00caae;
+}
+.index_main_sms {
+  display: block;
+  width: 170rpx;
+  height: 65rpx;
+  margin-left: 20rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #00caae;
+  line-height: 65rpx;
+}

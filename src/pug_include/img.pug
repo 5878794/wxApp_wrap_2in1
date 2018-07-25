@@ -1,5 +1,8 @@
-mixin img(src,classNames)
-    if(isWxApp)
-        img(src='../../image/'+src class=classNames)
+mixin img(src,base64,classNames)
+    if(base64)
+        img(src=base64 class=classNames)
     else
-        img(src='./image/'+src class=classNames)
+        if(isWxApp)
+            img(src='../../image/'+src class=classNames)
+        else
+            img(src='./image/'+src class=classNames)

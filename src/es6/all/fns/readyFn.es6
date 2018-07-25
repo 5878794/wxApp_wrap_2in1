@@ -1,9 +1,24 @@
 
+let inputEvent = function(e){
+	let id = e.currentTarget.id,
+		val = e.detail.value;
+
+	let obj = {};
+	obj[id] = val;
+
+	this.setData(obj);
+};
+
+
 
 
 if(isWxApp){
 	module.exports = function(obj){
 		obj.onLoad = obj.init;
+
+		obj.inputEvent = inputEvent;
+
+
 		Page(obj);
 	}
 }
@@ -11,8 +26,8 @@ if(isWxApp){
 
 if(!isWxApp){
 	//页面适配
-	let viewPort = require('../lib/ui/setViewport'),
-		dataEventBind = require('./wrapFn/dataBind_wrap');
+	let viewPort = require('../../lib/ui/setViewport'),
+		dataEventBind = require('./dataBind_wrap');
 	viewPort(psdWidth);
 
 	//页面ready事件
@@ -38,6 +53,7 @@ if(!isWxApp){
 		obj.setData = function(dd){
 			aa.setData(dd);
 		};
+		obj.inputEvent = inputEvent;
 	};
 
 	module.exports = function(obj){

@@ -71,7 +71,8 @@ let resolveDom = Symbol(),
 	showPickerDateChoose = Symbol(),
 	createDataChangeFunction = Symbol(),
 	scrollEventListener = Symbol(),
-	specialTagAndAttrHandler = Symbol();
+	specialTagAndAttrHandler = Symbol(),
+	mouseEventListener = Symbol();
 
 
 
@@ -586,6 +587,14 @@ class dataBind{
 			tagName = dom.tagName.toLowerCase(),
 			_this = this;
 
+		if( eventName == 'click' ||
+			eventName == device.START_EV ||
+			eventName == device.MOVE_EV ||
+			eventName == device.END_EV){
+			this[mouseEventListener](dom,eventName,attrValue,eventList);
+			return;
+		}
+
 		//处理input、textarea的事件绑定
 		if(eventName == 'input'){
 			this[inputEventListener](dom,eventName,attrValue,eventList);
@@ -703,7 +712,33 @@ class dataBind{
 
 
 
+	//处理click，mousedown，mousemove，mouseup事件
+	[mouseEventListener](dom,eventName,attrValue,eventList){
+		let _this = this.runObj,
+			fn = null,
+			newE = {};
 
+		dom.addEventListener(eventName,fn = function(e){
+			//将事件的返回改为微信的返回
+			//只返回了常用的
+			newE.currentTarget = {
+				id:e.currentTarget.id,
+				dataset:e.currentTarget.dataset
+			};
+			newE.type = eventName;
+
+			//执行绑定的函数
+			if(_this.hasOwnProperty(attrValue)){
+				_this[attrValue].call(_this,newE);
+			}
+		},false);
+
+		//根据全局和for中的变量 分别缓存注销事件
+		//缓存对象是传入的
+		eventList.push(function(){
+			dom.removeEventListener(eventName,fn,false);
+		});
+	}
 	//处理input、textarea的事件绑定
 	[inputEventListener](dom,eventName,attrValue,eventList){
 		let _this = this.runObj,

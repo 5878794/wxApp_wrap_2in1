@@ -17,13 +17,13 @@ html
             view(class='index_main_title') 请填写手机号
             view(class='index_main_form boxflex1 box_scc')
                 view(class='index_main_input box_hcc')
-                    input(placeholder='手机号' value='{{phone}}' class='boxflex1')
+                    input(type='tel' bindinput='inputEvent' maxlength='11' placeholder='手机号' id='phone' value='{{phone}}' class='boxflex1')
                 view(class='index_main_input box_hcc')
-                    input(placeholder='图形码' value='{{yzm}}' class='boxflex1')
-                    +img('{{img_yzm}}','index_yzm')
+                    input(type='text' bindinput='inputEvent' maxlength='5' placeholder='图形码' id='yzm' value='{{yzm}}' class='boxflex1')
+                    +img('','{{img_yzm}}','index_yzm')
                 view(class='index_main_input box_hcc')
-                    input(placeholder='验证码' value='{{sms}}' class='boxflex1')
-                    view(class='index_main_sms') 发送验证码
+                    input(type='text' bindinput='inputEvent' maxlength='5' placeholder='验证码' id='sms' value='{{sms}}' class='boxflex1')
+                    view(class='index_main_sms {{sending}}' bindtap='sendSms') {{smsShowText}}
 
 
         +button('下一步')

@@ -7,8 +7,9 @@ let regeneratorRuntime = require('regenerator-runtime');
 let backObj = {};
 
 
-backObj.run = require('./readyFn');
-
+backObj.run = require('./fns/readyFn');
+backObj.loading = require('./fns/loading');
+backObj.info = require('./fns/info');
 
 
 
