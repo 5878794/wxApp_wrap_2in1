@@ -9,13 +9,15 @@ if(isWxApp){
 	module.exports = {
 		run(type='get',url, data, success, error){
 			type = type.toUpperCase();
+
+
 			wx.request({
 				url: serverUrl+url,
 				data: data,
 				method:type,
 				dataType:'json',
 				header: {
-					'content-type': 'application/json' // 默认值
+					'content-type': (type=='get')? 'application/json':'application/x-www-form-urlencoded' // 默认值
 				},
 				success: function(rs) {
 					rs = rs.data;
