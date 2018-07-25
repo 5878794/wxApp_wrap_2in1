@@ -5,7 +5,8 @@
   "scripts": {
     "js": " babel-node ./cmd/es6_compile.es6",
     "jade": " babel-node ./cmd/pug_compile.es6",
-    "css": " babel-node ./cmd/less_compile.es6"
+    "css": " babel-node ./cmd/less_compile.es6",
+    "image":"babel-node ./cmd/img_copy.es6"
   },
   "author": "",
   "license": "ISC",

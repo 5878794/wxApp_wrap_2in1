@@ -1,0 +1,5 @@
+mixin img(src,classNames)
+    if(isWxApp)
+        img(src='../../image/'+src class=classNames)
+    else
+        img(src='./image/'+src class=classNames)

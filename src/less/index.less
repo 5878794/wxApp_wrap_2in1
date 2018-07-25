@@ -1,50 +1,66 @@
 @import "../less_include/all.less";
+@import "../less_include/common.less";
 
 
-view{
-  font-size:gv(0.4);
-}
 
 
-.top{
-  width: 100%; height: gv(0.6); line-height: gv(0.6); background: #ccc;
-  position: fixed; left:0; top:0;
+.index_main{
+  position: relative;
+  top: gv(-0.45);
+  background: #fff;
+  -webkit-border-radius: gv(0.1);
+  -moz-border-radius: gv(0.1);
+  border-radius: gv(0.1);
+  width: gv(7);
+  height: gv(6);
+  margin: 0 auto;
+  -webkit-box-shadow: 0 gv(0.1) gv(0.4) #ccc;
+  -moz-box-shadow: 0 gv(0.1) gv(0.4) #ccc;
+  box-shadow: 0 gv(0.1) gv(0.4) #ccc;
 }
-.top_left{
-  width: gv(0.6); height: gv(0.6); text-align: center;
-}
-.top_right{
-  width: gv(0.6); height: gv(0.6); text-align: center;
-}
-.top_center{
+
+.index_main_title{
+  width: 100%;
+  height: gv(1);
   text-align: center;
+  line-height: gv(1);
+  font-size: gv(0.32);
+  color: #000;
+  position: relative;
+}
+.index_main_title:after{
+  content: '';
+  width: 1em;
+  height: gv(0.04);
+  background: #000;
+  -webkit-border-radius: gv(0.04);
+  -moz-border-radius: gv(0.04);
+  border-radius: gv(0.04);
+  position: absolute;
+  left: 50%;
+  margin-left: -0.5em;
+  bottom: gv(0.2);
 }
 
-.main{
-  .border_box;
-  background: #eee;
-  padding: gv(0.6) gv(0.4);
-}
-.item{
-  width: 100%; height: gv(0.6);
-  line-height: gv(0.6);
-  border-bottom:1px solid #000;
+.index_main_form{
+  width: gv(4.8);
+  margin: 0 auto;
+  padding-bottom: gv(0.5);
 }
 
-
-.bottom{
-  position: fixed; left:0; bottom:0;
-  width: 100%; height: gv(0.6);
-  background: red;
+.index_main_input{
+  width: 100%;
+  height: gv(0.75);
+  margin-bottom: gv(0.2);
+  border-bottom: gv(1px) solid rgb(183,184,189);
+  padding: gv(0.1) gv(0.05) 0 gv(0.05);
+  line-height: gv(0.65);
+  color: rgb(162,162,163);
+  position: relative;
+  overflow: hidden;
+  font-size: gv(0.24);
 }
-
-
-.banner_item{
-  width: 100%; height: gv(2); display: block;
-}
-swiper-item{
-  display: block; width: 100%;
-}
-swiper{
-  width: 100%; height: gv(2); display: block;
+.index_main_input input{
+  width:gv(2.8);
+  color: #333;
 }

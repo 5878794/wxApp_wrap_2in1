@@ -1,6 +1,6 @@
 
 
 module.exports = {
-	psdWidth:640,
+	psdWidth:750,
 	wxWidth:750
 };

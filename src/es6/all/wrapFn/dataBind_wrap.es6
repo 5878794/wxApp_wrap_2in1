@@ -41,11 +41,11 @@
 
 
 
-require('../lib/pro/array');
-let device = require('../lib/device'),
-	input_select = require('../lib/input/select'),
-	date_select = require('../lib/input/date'),
-	banner_object = require('../lib/ui/bannerScroll_wx');
+require('../../lib/pro/array');
+let device = require('../../lib/device'),
+	input_select = require('../../lib/input/select'),
+	date_select = require('../../lib/input/date'),
+	banner_object = require('../../lib/ui/bannerScroll_wx');
 
 let resolveDom = Symbol(),
 	getGlobalVar = Symbol(),
