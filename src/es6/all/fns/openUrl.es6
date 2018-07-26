@@ -1,15 +1,19 @@
 if(isWxApp){
 	module.exports = {
 		open(url){
-			url = url.split('.')[0];
+			let pageName = url.split('.')[0];
+			let param = url.split('?')[1];
+			param = (param)? '?'+param : '';
 			wx.navigateTo({
-				url:'../'+url+'/index'
+				url:'../'+pageName+'/index'+param
 			})
 		},
 		closeOpen(url){
-			url = url.split('.')[0];
+			let pageName = url.split('.')[0];
+			let param = url.split('?')[1];
+			param = (param)? '?'+param : '';
 			wx.redirectTo({
-				url:'../'+url+'/index'
+				url:'../'+url+'/index'+param
 			})
 		}
 	};

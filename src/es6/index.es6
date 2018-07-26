@@ -66,12 +66,14 @@ let page = {
 				phone:phone
 			})
 		]).catch(rs=>{
-			app.info.show(rs);
 			app.loading.hide();
-			_this.changeYZM();
+			app.info.show(rs);
 			_this.setData({
 				yzm:''
 			});
+			setTimeout(function(){
+				_this.changeYZM();
+			},0);
 			throw(rs);
 		});
 		app.loading.hide();
@@ -132,22 +134,18 @@ let page = {
 		let phone = this.data.phone;
 
 
-
 		if(rs == 2){
 			//有预约 显示预约详情
-			app.openUrl('application_result.html?phone='+phone);
+			app.page.open('application_result.html?phone='+phone);
 		}else if(rs == 3){
 			//有体检结果 直接显示结果
-			app.openUrl('result.html?phone='+phone);
+			app.page.open('result.html?phone='+phone);
 		}else{
 			//新的预约
-			app.openUrl('application_step1.html?phone='+phone);
+			app.page.open('step1.html?phone='+phone);
 		}
 
 
-	},
-	openUrl(){
-		app.page.open('step1.html')
 	}
 
 

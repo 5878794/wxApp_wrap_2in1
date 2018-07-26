@@ -11,8 +11,8 @@ let page = {
 	data:{
 
 	},
-	init(){
-		console.log(222)
+	init(opt){
+		console.log(opt)
 	}
 
 

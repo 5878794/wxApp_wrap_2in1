@@ -24,7 +24,6 @@ if(isWxApp){
 					if(rs.state != 1){
 						error(rs.msg);
 					}
-
 					success(rs.data);
 				},
 				fail:function (err) {

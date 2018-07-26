@@ -9,7 +9,7 @@ let inputEvent = function(e){
 	this.setData(obj);
 };
 
-
+let getParamFn = require('../../lib/fn/getParamFromUrl');
 
 
 if(isWxApp){
@@ -61,16 +61,16 @@ if(!isWxApp){
 			if(!bindFnIsRun){
 				bindFnIsRun = true;
 				dataBindFn(obj);
-
-				obj.init();
+				let param = getParamFn();
+				obj.init(param);
 			}
 		}else{
 			cacheFns.push(function(){
 				if(!bindFnIsRun){
 					bindFnIsRun = true;
 					dataBindFn(obj);
-
-					obj.init();
+					let param = getParamFn();
+					obj.init(param);
 				}
 			});
 		}
