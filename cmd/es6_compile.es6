@@ -24,7 +24,7 @@ let getWxFilesObj = function(entryFiles,es6Dir){
 	let obj = {};
 	entryFiles.map(filePath=>{
 		let fileName = filePath.replace(es6Dir,"").split('.')[0],
-			key = 'wxApp_trunk/pages/'+fileName+'/'+fileName;
+			key = 'wxApp_trunk/pages/'+fileName+'/index';
 
 		obj[key] = filePath;
 	});

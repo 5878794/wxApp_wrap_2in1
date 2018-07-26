@@ -1,3 +1,3 @@
-mixin button(text)
+mixin button(text,eventFn)
     view(class='all_btn_main')
-        view(class='all_btn button_bg')=text
+        view(class='all_btn button_bg' bindtap=eventFn)=text

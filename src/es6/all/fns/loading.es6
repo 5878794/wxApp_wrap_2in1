@@ -3,7 +3,7 @@ let n = 0,
 
 if(isWxApp){
 	module.exports = {
-		show:function(text){
+		show:function(text='极速加载中'){
 			n++;
 			if(n==1){
 				t = new Date().getTime();
@@ -37,7 +37,7 @@ if(!isWxApp){
 		loading;
 
 	module.exports = {
-		show:function(text){
+		show:function(text='极速加载中'){
 			if(!loading){
 				loading = new loadFn();
 			}

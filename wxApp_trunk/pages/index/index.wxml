@@ -18,6 +18,6 @@
       </view>
     </view>
         <view class="all_btn_main">
-          <view class="all_btn button_bg">下一步</view>
+          <view class="all_btn button_bg" bindtap="submitData">下一步</view>
         </view>
   

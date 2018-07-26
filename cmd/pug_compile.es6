@@ -77,7 +77,7 @@ var renderWxHtml = function(html,fileName,filePath,title){
 
 
 	//根据微信app结构生成 wxml文件
-	let wwwFileName = path.join(wxDir,'/'+fileName+'/'+fileName+'.wxml');
+	let wwwFileName = path.join(wxDir,'/'+fileName+'/index.wxml');
 	fs.writeFileSync(wwwFileName,html,function(err){
 		if(err){
 			console.log(filePath+'    err!');
@@ -89,7 +89,7 @@ var renderWxHtml = function(html,fileName,filePath,title){
 	let jsonText = {navigationBarTitleText:title};
 	jsonText = JSON.stringify(jsonText);
 	//json地址路径
-	let jsonFileName = path.join(wxDir,'/'+fileName+'/'+fileName+'.json');
+	let jsonFileName = path.join(wxDir,'/'+fileName+'/index.json');
 	fs.writeFileSync(jsonFileName,jsonText,function(err){
 		if(err){
 			console.log(filePath+'    err!');

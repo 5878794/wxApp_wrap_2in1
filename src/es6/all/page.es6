@@ -10,6 +10,7 @@ let backObj = {};
 backObj.run = require('./fns/readyFn');
 backObj.loading = require('./fns/loading');
 backObj.info = require('./fns/info');
+backObj.page = require('./fns/openUrl');
 
 
 

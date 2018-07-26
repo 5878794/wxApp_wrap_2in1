@@ -34,7 +34,7 @@ let renderFn = function(opt={}){
 	entryFiles.map(filePath=>{
 		let fileName = filePath.replace(lessDir,"").split('.')[0],
 			outPath = (opt.isWxApp)?
-				path.join(wxDir,'/'+fileName+'/'+fileName+'.wxss') :
+				path.join(wxDir,'/'+fileName+'/index.wxss') :
 				path.join(wwwDir,'/'+fileName+'.css'),
 			cmdText = 'lessc --functions --modify-var="wxWidth='+setting.wxWidth+'"  --modify-var="psdWidth='+setting.psdWidth+'" --modify-var="isWxApp='+isWxApp+'"   '+filePath+' ' +outPath;
 

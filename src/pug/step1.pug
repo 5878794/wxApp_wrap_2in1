@@ -1,0 +1,16 @@
+include ./../pug_include/head
+
+doctype html
+html
+    head
+        +header('体质评估报告','index')
+
+        include ../pug_include/top
+        include ../pug_include/img
+        include ../pug_include/button
+    body
+
+        +top('国民体质监测中心')
+
+
+        view step1

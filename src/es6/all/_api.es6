@@ -23,7 +23,7 @@ let api = {
 
 	//认证登录
 	// data={
-	// 	token:'',
+	// 	phone:'',
 	// 	messageCode:''
 	// };
 	login(data={}){

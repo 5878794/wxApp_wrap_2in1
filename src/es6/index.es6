@@ -94,12 +94,70 @@ let page = {
 				})
 			}
 		},1000)
+	},
+	submitData(){
+		if(!this.data.sms){
+			app.info.show('请输入短信验证码');
+			return;
+		}
+
+		let _this = this;
+
+		app.loading.show();
+		this.submit().then(rs=>{
+			_this.nextPage(rs);
+
+			app.loading.hide();
+
+		}).catch(rs=>{
+			app.loading.hide();
+			app.info.show(rs);
+		})
+	},
+	async submit(){
+		let data = await ajax([
+			api.login({
+				phone:this.data.phone,
+				token:this.token,
+				messageCode:this.data.sms
+			})
+		]);
+
+		data = data[0] || [];
+		data = data[0] || {};
+
+		return data;
+	},
+	nextPage(rs){
+		let phone = this.data.phone;
+
+
+
+		if(rs == 2){
+			//有预约 显示预约详情
+			app.openUrl('application_result.html?phone='+phone);
+		}else if(rs == 3){
+			//有体检结果 直接显示结果
+			app.openUrl('result.html?phone='+phone);
+		}else{
+			//新的预约
+			app.openUrl('application_step1.html?phone='+phone);
+		}
+
+
+	},
+	openUrl(){
+		app.page.open('step1.html')
 	}
+
+
 
 };
 
 if(window){
 	window.page = page;
+}else{
+	global.page=  page;
 }
 
 app.run(page);
