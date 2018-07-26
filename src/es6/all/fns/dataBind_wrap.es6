@@ -1104,12 +1104,19 @@ class dataBind{
 
 	}
 	//检查并返回scroll-view的scroll-into-view属性处理函数
-	[specialTagAndAttrHandler](dom,attr,id){
-		if(dom.tagName.toLowerCase() == 'scroll-view' && attr == 'scroll-into-view'){
-			setTimeout(function(){
-				document.getElementById(id).scrollIntoView(true);
-			},0);
+	[specialTagAndAttrHandler](dom,attr,val){
+		let tagName = dom.tagName.toLowerCase();
 
+		//处理scroll-view 的自动滚动到某元素
+		if(tagName == 'scroll-view' && attr == 'scroll-into-view'){
+			setTimeout(function(){
+				document.getElementById(val).scrollIntoView(true);
+			},0);
+		}
+
+		//处理input到value元素赋值
+		if(tagName == 'input' && attr == 'value'){
+			dom.value = val;
 		}
 	}
 

@@ -9,7 +9,7 @@
           <input class="boxflex1" type="tel" bindinput="inputEvent" maxlength="11" placeholder="手机号" id="phone" value="{{phone}}" />
         </view>
         <view class="index_main_input box_hcc">
-          <input class="boxflex1" type="text" bindinput="inputEvent" maxlength="5" placeholder="图形码" id="yzm" value="{{yzm}}" /><image  class="index_yzm" src="{{img_yzm}}" />
+          <input class="boxflex1" type="text" bindinput="inputEvent" maxlength="5" placeholder="图形码" id="yzm" value="{{yzm}}" /><image  class="index_yzm" src="{{img_yzm}}" bindtap="changeYZM" />
         </view>
         <view class="index_main_input box_hcc">
           <input class="boxflex1" type="text" bindinput="inputEvent" maxlength="5" placeholder="验证码" id="sms" value="{{sms}}" />

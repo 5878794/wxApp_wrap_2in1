@@ -18,10 +18,20 @@ let page = {
 	},
 	isSendSMS:false,
 	token:'',
-	async init(){
+	init(){
+		this.changeYZM();
+
+	},
+	changeYZM(){
 		app.loading.show('极速加载中');
-
-
+		this.getYZM().then(rs=>{
+			app.loading.hide();
+		}).catch(rs=>{
+			app.loading.hide();
+			app.info.show(rs);
+		})
+	},
+	async getYZM(){
 		let data = await ajax([
 			api.getYZM()
 		]);
@@ -34,13 +44,11 @@ let page = {
 		this.setData({
 			img_yzm:src
 		});
-
-
-		app.loading.hide();
 	},
 	async sendSms(){
 		let phone = this.data.phone,
-			imgCode = this.data.yzm;
+			imgCode = this.data.yzm,
+			_this = this;
 
 		if(!phone || !imgCode){
 			app.info.show('请输入手机号和图形验证码');
@@ -60,6 +68,10 @@ let page = {
 		]).catch(rs=>{
 			app.info.show(rs);
 			app.loading.hide();
+			_this.changeYZM();
+			_this.setData({
+				yzm:''
+			});
 			throw(rs);
 		});
 		app.loading.hide();

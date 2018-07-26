@@ -20,7 +20,7 @@ html
                     input(type='tel' bindinput='inputEvent' maxlength='11' placeholder='手机号' id='phone' value='{{phone}}' class='boxflex1')
                 view(class='index_main_input box_hcc')
                     input(type='text' bindinput='inputEvent' maxlength='5' placeholder='图形码' id='yzm' value='{{yzm}}' class='boxflex1')
-                    +img('','{{img_yzm}}','index_yzm')
+                    +img('','{{img_yzm}}','index_yzm','changeYZM')
                 view(class='index_main_input box_hcc')
                     input(type='text' bindinput='inputEvent' maxlength='5' placeholder='验证码' id='sms' value='{{sms}}' class='boxflex1')
                     view(class='index_main_sms {{sending}}' bindtap='sendSms') {{smsShowText}}

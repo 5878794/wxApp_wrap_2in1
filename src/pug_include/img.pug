@@ -1,8 +1,17 @@
-mixin img(src,base64,classNames)
+mixin img(src,base64,classNames,eventFn)
     if(base64)
-        img(src=base64 class=classNames)
+        if(eventFn)
+            img(src=base64 class=classNames bindtap=eventFn)
+        else
+            img(src=base64 class=classNames)
     else
         if(isWxApp)
-            img(src='../../image/'+src class=classNames)
+            if(eventFn)
+                img(src='../../image/'+src class=classNames bindtap=eventFn)
+            else
+                img(src='../../image/'+src class=classNames)
         else
-            img(src='./image/'+src class=classNames)
+            if(eventFn)
+                img(src='./image/'+src class=classNames bindtap=eventFn)
+            else
+                img(src='./image/'+src class=classNames)
