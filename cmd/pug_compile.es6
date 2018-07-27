@@ -54,6 +54,13 @@ let renderFn = function(opt={}){
 			renderWrapHtml(html,fileName,filePath);
 		}
 	});
+
+
+	//生成wxAPP的app.json文件
+	if(opt.isWxApp){
+		createWxAppJsonFile(entryFiles);
+	}
+
 };
 
 var renderWxHtml = function(html,fileName,filePath,title){
@@ -98,6 +105,46 @@ var renderWxHtml = function(html,fileName,filePath,title){
 	});
 };
 
+var createWxAppJsonFile = function(entryFiles){
+	//生成现有的文件列表
+	let all = ['index'];
+	entryFiles.map(filePath=>{
+		//获取文件名 文件名不带后缀
+		let fileName = filePath.replace(pugDir,"").split('.')[0];
+		if(fileName != 'index'){
+			all.push(fileName);
+		}
+	});
+
+	all = all.map(rs=>{
+		return "pages/"+rs+"/index"
+	});
+
+	//读取已有的app.json文件
+	let jsonPath = path.join(wxDir,'../app.json'),
+		text;
+
+	if(fs.existsSync(jsonPath)){
+		text = fs.readFileSync(jsonPath,'utf-8');
+		text = JSON.parse(text);
+		text.pages = all;
+	}else{
+		text = {};
+		text.pages = all;
+		text.window = {
+			"backgroundTextStyle":"light",
+			"navigationBarBackgroundColor": "#fff",
+			"navigationBarTitleText": "WeChat",
+			"navigationBarTextStyle":"black"
+		};
+	}
+	text = JSON.stringify(text);
+
+	//写入文件
+	fs.writeFileSync(jsonPath,text,{
+		encoding:'utf-8'
+	});
+};
 
 var renderWrapHtml = function(html,fileName,filePath){
 	//处理checkbox标签
